@@ -1,11 +1,11 @@
 
 class Edge:
     edge_counter=0
-    def __init__(self,name=None,weight=1,node1,node2,direc=None):
+    def __init__(self,node1,node2,weight=1,name=None,direc=None):
         self.index=Edge.edge_counter
         Edge.edge_counter=Edge.edge_counter+1
         
-        if(name)
+        if name:
             self.name = name
         else:
             self.name=self.index
@@ -23,7 +23,7 @@ class Edge:
             return self.nodes[0]
         elif self.nodes[1] == node:
             return self.nodes[1]
-        else
+        else:
             return None
 
     
@@ -31,3 +31,4 @@ class Edge:
         for node in self.nodes:
             node.remove_edge(self)
         Edge.edge_counter=Edge.edge_counter-1
+        print("Edge deleted!")

@@ -5,7 +5,7 @@ class Node:
         self.edges=[]
         self.index=Node.node_counter
         Node.node_counter=Node.node_counter+1
-        if(name)
+        if name:
             self.name=name
         else:
             self.index=str(node_counter)
@@ -23,3 +23,4 @@ class Node:
         for edge in self.edges:
             del edge
         Node.node_counter=Node.node_counter-1
+        print("Node deleted!")
