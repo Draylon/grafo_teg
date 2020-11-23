@@ -12,6 +12,10 @@ class Graph:
         self.nodes=[]
         self.edges=[]
 
+        #== criando matriz
+        #self.matrizAdjacencias = [[0 for y in range(self.numVerticesMaximo)] for x in range(self.numVerticesMaximo)]
+        self.matrizAdjacencias = [[0]]
+
     def add_edge(self,node1,node2):
         e = Edge(node1,node2,1,None,self.direcionado)
         if self.direcionado == False:
@@ -65,22 +69,29 @@ class Graph:
 
     def most_connected(self):
         conn_number = -1
-        r_node = None
+        r_node = []
         for node in self.nodes:
             if len(node.edges) > conn_number:
-                r_node = node
+                r_node = [node]
                 conn_number=len(node.edges)
-        return r_node
+            if len(node.edges) == conn_number:
+                r_node.append(node)
+        return r_node,conn_number
 
     def least_connected(self):
         conn_number = -1
-        r_node = None
+        r_node = []
         for node in self.nodes:
             if len(node.edges) < conn_number:
-                r_node = node
+                r_node = [node]
                 conn_number=len(node.edges)
-        return r_node
+            if len(node.edges) == conn_number:
+                r_node.append(node)
+        return r_node,conn_number
 
+    def complemento(self):
+
+    
 
 
     '''
