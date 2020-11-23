@@ -9,6 +9,14 @@ class Node:
             self.name=name
         else:
             self.index=str(node_counter)
+        self.visited=False
+
+    def visit(self):
+        if self.visited:
+            return True
+        self.visited=True
+        return False
+    def clearvisit(self): self.visited=False
 
     def add_edge(self,edge):
         self.edges.append(edge)
@@ -24,3 +32,19 @@ class Node:
             del edge
         Node.node_counter=Node.node_counter-1
         print("Node deleted!")
+
+
+class Vertice:
+    def __init__(self,rotulo):
+        self.rotulo = rotulo # por exemplo "A"
+        self.visitado = False
+    # def visitado(self):
+    #        self.visitado = True
+    def igualA(self,r):
+        return r == self.rotulo
+    def foiVisitado(self):
+        return self.visitado
+    def regVisitado(self):
+        self.visitado = True
+    def limpa(self):
+        self.visitado = False
