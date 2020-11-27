@@ -1,43 +1,31 @@
 
 class Node:
-    node_counter=0
-    def __init__(self,name=None):
-        self.edges=[]
-        self.index=Node.node_counter
-        Node.node_counter=Node.node_counter+1
-        if name:
-            self.name=name
-        else:
-            self.index=str(node_counter)
-        self.visited=False
+    index=0
+    def __init__(self,graph,name=None):
+        self.owner=graph
+        self.id=Node.index
+        self.name=""
 
-    def visit(self):
-        if self.visited:
-            return True
-        self.visited=True
-        return False
-    def clearvisit(self): self.visited=False
-
-    def add_edge(self,edge):
-        self.edges.append(edge)
-    def remove_edge(self,edge):
-        return self.edges.remove(edge)
-
-    def next(self,edge):
-        return edge.next(self)
+        if name: self.name=name
+        else: self.name='n'+str(self.id)
+        
+        Node.index=Node.index+1
     
+    def copy(self):
+        return Node(self.owner,self.name)
 
     def __del__(self):
-        for edge in self.edges:
-            del edge
-        Node.node_counter=Node.node_counter-1
-        print("Node deleted!")
+        self.owner.remove_node(self)
+        print("Node",self.name,"deleted!")
 
-
+'''
 class Vertice:
+    index=0
     def __init__(self,rotulo):
+        self.id=Vertice.index
         self.rotulo = rotulo # por exemplo "A"
         self.visitado = False
+        Vertice.index+=1
     # def visitado(self):
     #        self.visitado = True
     def igualA(self,r):
@@ -48,3 +36,7 @@ class Vertice:
         self.visitado = True
     def limpa(self):
         self.visitado = False
+    
+    def __del__(self):
+        Vertice.index-=1
+        '''
