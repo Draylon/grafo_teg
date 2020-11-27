@@ -1,34 +1,22 @@
 
 class Edge:
-    edge_counter=0
-    def __init__(self,node1,node2,weight=1,name=None,direc=None):
-        self.index=Edge.edge_counter
-        Edge.edge_counter=Edge.edge_counter+1
+    index=0
+    def __init__(self,graph,weight=1,name=None,direc=None):
+        self.owner=graph
+        self.id=Edge.index
+        Edge.index=Edge.index+1
         
         if name:
             self.name = name
         else:
-            self.name=self.index
+            self.name='e'+str(self.id)
 
         self.weight=weight
-        self.nodes=[node1,node2]
-        self.direc=direc
-
-    ''' pega o nodo na outra ponta'''
-    def next(self,node=None):
-        if self.direc == True:
-            return self.nodes[1]
-
-        if self.nodes[0] == node:
-            return self.nodes[0]
-        elif self.nodes[1] == node:
-            return self.nodes[1]
-        else:
-            return None
-
+        self.direc=False if not direc else direc
     
+    def copy(self):
+        return Edge(self.owner,self.weight,self.name,self.direc)
+
     def __del__(self):
-        for node in self.nodes:
-            node.remove_edge(self)
-        Edge.edge_counter=Edge.edge_counter-1
-        print("Edge deleted!")
+        self.owner.remove_edge(self)
+        print("Edge",self.name,"deleted!")

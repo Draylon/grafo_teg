@@ -11,6 +11,12 @@ class Graph:
         grp.numVerticesMaximo=grafo.numVerticesMaximo
         grp.numVertices=grafo.numVertices
         return grp
+    def conexo(grafo):
+        for xi,x in enumerate(grafo.matrizAdjacencias):
+            sum=0
+            for yi,y in enumerate(grafo.matrizAdjacencias[xi]):
+                sum+=y
+
 
     def __init__(self,name=None,direcionado=False):
         self.numVerticesMaximo=3
@@ -19,25 +25,40 @@ class Graph:
         self.matrizAdjacencias = [ [0 for y in range(self.numVerticesMaximo)] for x in range(self.numVerticesMaximo)]
 
     def add_edge(self,inicio,fim):
-        self.matrizAdjacencias[inicio][fim] = 1
-        self.matrizAdjacencias[fim][inicio] = 1
+        inicio=self.getIndex(inicio)
+        fim=self.getIndex(fim)
+        self.matrizAdjacencias[inicio][fim] += 1
+        self.matrizAdjacencias[fim][inicio] += 1
 
     def add_node(self,name=None):
         self.numVertices += 1
         self.listaVertices.append(Vertice(name))
-        return self.numVertices-1
+        return self.listaVertices[self.numVertices-1]
 
     def remove_edge(self,edge):
-        self.matrizAdjacencias[inicio][fim] =0
-        self.matrizAdjacencias[fim][inicio] =0
+        inicio=self.getIndex(inicio)
+        fim=self.getIndex(fim)
+        self.matrizAdjacencias[inicio][fim]-=1
+        self.matrizAdjacencias[fim][inicio]-=1
 
     def remove_node(self,node):
         self.numVertices -= 1
         self.listaVertices.remove(node)
-        return self.numVertices
+        del node
 
-    def localizaRotulo(self,rinicio):
-        return self.listaVertices[rinicio]
+    def getIndex(self,node):
+        return self.listaVertices.index(node)
+
+    def grau(self,node):
+        ind = self.getIndex(node)
+        g=0
+        if not self.matrizAdjacencias[ind]: return g
+        for xi,x in enumerate(self.matrizAdjacencias[ind]):
+            g+= x*2 if ind==xi else x
+        return g
+    
+    
+
 
 
     def most_connected(self):
