@@ -142,6 +142,21 @@ class Graph:
     #  ==================================
 
 
+    def grau_vertice(self,index):
+        grau=0
+        for xi,x in enumerate(self.matrix[index]):
+            grau+=2*x if xi == index else x
+        return grau
+
+    def grau_vertices(self):
+        print("Grau dos vertices")
+        for n in range(len(self.__nodes)):
+            print("Node",self.__nodes[n].name," grau:",self.grau_vertice(n))
+
+
+    #  ==================================
+
+
 
     def __pathing_list(self,current,arrival,edge_list=[]):
         for edge,dest_ in self.__connections[current].items():
@@ -311,7 +326,8 @@ class Graph:
 ========================================================
     '''
     def complemento(grafo):
-        matr=[ [ (0 if grafo.matrix[x][y] >= 1 else 1) for y in range(len(grafo.matrix[0]))]  for x in range(len(grafo.matrix)) ]
+        leng=len(grafo.matrix)
+        matr=[ [ (1 if grafo.matrix[x][y] < 1 and x!=y else 0) for y in range(leng)]  for x in range(leng) ]
         grp=Graph('complemento_'+grafo.name,grafo.get_direct())
         grp.matrix=matr
         for n in grafo.__nodes:
@@ -322,8 +338,9 @@ class Graph:
         lenp=min(1,lenn)
         for xi in range(lenn):
             for yi in range(lenp):
-                for am in range(grp.matrix[xi][yi]):
-                    grp.__add_edge_man(grp.__nodes[xi],grp.__nodes[yi],xi,yi)
+                if xi != yi:
+                    for am in range(grp.matrix[xi][yi]):
+                        grp.__add_edge_man(grp.__nodes[xi],grp.__nodes[yi],xi,yi)
             lenp+=1
         return grp
 
