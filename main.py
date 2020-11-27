@@ -19,21 +19,13 @@ if __name__ == "__main__":
     print(graph.least_connected())
     print("Mais conectado:")
     print(graph.most_connected())
+    
     print("subgs:\n")
     sg1=graph.sub_grafos()
-    print("First:",len(sg1))
-    for x1,nl in enumerate(sg1):
-        print(str((x1+1))+"° conjunto:")
-        for nd in nl:
-            print(nd.name,end=" ")
-        print("")
-    print("")
-    
+    graph.print_subgrafos(sg1)
     gc,gcm = graph.conexo()
-    if gc == True:
-        print("Grafo conexo, com",gcm,"subconjunto")
-    else:
-        print("Grafo disconexo, com",gcm,"subconjuntos")
+    print("gc",gc,"gcm",gcm)
+    
 
 
     print("\n\n========================\n========================\n========================\n\n")
@@ -45,16 +37,11 @@ if __name__ == "__main__":
     print(g2.least_connected())
     print("Mais conectado:")
     print(g2.most_connected())
+    
     print("subgs:\n")
-    for x1,nl in enumerate(g2.sub_grafos()):
-        print(str((x1+1))+"° conjunto:")
-        for nd in nl:
-            print(nd.name,end=" ")
-        print("")
-    print("")
-
+    sg2=graph.sub_grafos()
+    g2.print_subgrafos(sg2)
     gc,gcm = g2.conexo()
-    if gc == True:
-        print("Grafo conexo, com",gcm,"subconjunto")
-    else:
-        print("Grafo disconexo, com",gcm,"subconjuntos")
+    print("gc",gc,"gcm",gcm)
+
+    print("\n\n\n")

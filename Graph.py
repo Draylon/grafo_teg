@@ -238,6 +238,13 @@ class Graph:
             return None
     
 
+    def print_subgrafos(self,sg_list):
+        for x1,nl in enumerate(sg_list):
+            print(str((x1+1))+"° conjunto:")
+            for nd in nl:
+                print(nd.name,end=" ")
+            print("")
+        print("")
 
     def sub_grafos(self):
         self.__sub_grafl=[[]]
@@ -248,9 +255,8 @@ class Graph:
                 nc+=1
                 self.__sub_grafl.append([])
         self.__sub_grafl.pop()
-        cpr=self.__sub_grafl.copy()
-        del self.__sub_grafl
-        return cpr
+        self.__clear_visited_nodes()
+        return self.__sub_grafl.copy()
 
     def __sub_grafos_rec(self,curr,node):
         if self.__visited_node[node] == False:
@@ -323,11 +329,11 @@ class Graph:
 
     def conexo(self):
         subg = self.sub_grafos()
-        print(subg)
         legc=len(subg)
-        print("len",legc)
         if legc == 1:
+            print("Grafo conexo, com",legc,"subconjunto")
             return True,legc
+        print("Grafo disconexo, com",legc,"subconjuntos")
         return False,legc
 
 
