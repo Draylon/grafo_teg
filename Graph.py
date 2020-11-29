@@ -1,6 +1,7 @@
 
 from Node import Node
 from Edge import Edge
+from queue import MQueue
 
 class Graph:
     def __init__(self,name=None,direcionado=False):
@@ -25,7 +26,7 @@ class Graph:
     def add_node(self,name=None): # add into graph
         n = Node(self,name)
         self.__nodes.append(n)
-        print("adding",n.name,"to graph")
+        #print("adding",n.name,"to graph")
 
         self.__new_to_matrix()
         self.__visited_node[n]=False
@@ -36,7 +37,7 @@ class Graph:
         try:
             if self.__edges == {} or self.__nodes == []:
                 return
-            print("removing",node.name,"from",self.name)
+            #print("removing",node.name,"from",self.name)
             ind=self.__nodes.index(node)
             self.disconnect_node(node)
             self.__remove_from_matrix(ind)
@@ -208,8 +209,8 @@ class Graph:
         for n in self.__visited_node.keys():
             self.__visited_node[n]=False
     def __clear_visited_edges(self):
-        for e in self.__visited_edges.keys():
-            self.__visited_edges[e]=False
+        for e in self.__visited_edge.keys():
+            self.__visited_edge[e]=False
     
 
 
@@ -280,6 +281,126 @@ class Graph:
             for edge,dest_ in self.__connections[node].items():
                 self.__sub_grafos_rec(curr,dest_)
         return
+
+    def print_pontes(set_):
+        for ed in set_:
+            print(ed.name,end=" ")
+        print()
+
+    def pontes(self,ls_c):
+        edge_cycle = set()
+        self.__clear_visited_edges()
+        for nd_list in ls_c:
+            for nd in nd_list:
+                for edg,dest1 in self.__connections[nd].items():
+                    if dest1 in nd_list:
+                        self.__visited_edge[edg]=True
+        for edg,bool_ in self.__visited_edge.items():
+            if bool_ == False:
+                edge_cycle.add(edg)
+        return edge_cycle
+        
+
+    def ciclico(self,ls_c):
+        if len(ls_c) > 0:
+            return True
+        return False
+        
+    def print_ciclos(ls_c):
+        for nd_list in ls_c:
+            for nd in nd_list:
+                if nd == True:
+                    print("Done")
+                    continue
+                print("Node:",nd.name,end="  ")
+            print("")
+
+
+    def __ciclo_def(self,ind,curr,targ,from_ed):
+        #print("Current:",ind,"targ:",targ.name,end=" | ")
+        
+        for ed,dest in self.__connections[curr].items():
+            if ed not in from_ed and self.__visited_edge[ed] == True:
+                from_ed.append(ed)
+                #print("node:",curr.name,"edge:",ed.name,"dest:",dest.name)
+                try:
+                    try:
+                        indnode=self.__cycle_list[ind].index(curr)
+                        print(curr.name,"already exists")
+                        self.__cycle_list[ind]=self.__cycle_list[ind][:(indnode+1)]
+                    except Exception as exde:
+                        #print("err",curr.name,"not found")
+                        #print("adding",curr.name,"to list\n")
+                        self.__cycle_list[ind]+=[curr]
+                    if dest==targ:
+                        #print("Found=====\n")
+                        self.__cycle_list[ind]+=[dest]
+                        #print("added-found",dest.name,self.__cycle_list[ind][-1].name)
+                except ValueError as exc:
+                    #print("err",curr.name,"not found")
+                    #print("adding",curr.name,"to list\n")
+                    self.__cycle_list[ind]+=[curr]
+                except Exception as exc:
+                    print(exc)
+                
+                if dest==targ:
+                    return True
+                self.__visited_edge[ed]=False
+                if self.__ciclo_def(ind,dest,targ,from_ed) == True:
+                    return True
+                '''try:
+                    rind=from_ed.index(ed)
+                    if (len(from_ed)-1-rind) != 0 and self.__cycle_list[ind][len(self.__cycle_list[ind])-1][1] != 2:
+                        print("removing",rind)
+                        self.__cycle_list[ind][rind][1]=0
+                        self.__cycle_list[ind][rind+1][1]=0
+                except Exception as identifier:
+                    pass'''
+                
+        #self.__cycle_list[ind]+=[(curr,0)]
+
+
+    def __ciclos_rec(self):
+        node = self.__node_queue.pop()
+        if node:
+            #print("popped",node.name)
+            for ed,dest in self.__connections[node].items():
+                if self.__visited_edge[ed] == False:
+                    #print("going to",dest.name,"with",ed.name)
+                    if self.__node_queue.has(dest):
+                        #print(dest.name,"already exists in queue")
+                        self.__visited_edge[ed]=True
+                        #print("\ndetecting cycle\n")
+                        self.__cycle_list.append([])
+                        self.__ciclo_def(len(self.__cycle_list)-1,node,dest,[ed])
+                        #print("\ncycle done\n")
+                        for li in self.__cycle_list[-1]:
+                            if li == True:
+                                #print("Done")
+                                continue
+                            #print(li.name,end=" | ")
+                        #print("//")
+                    else:
+                        #print("adding",dest.name)
+                        self.__node_queue.push(dest)
+                        self.__visited_edge[ed]=True
+            return self.__ciclos_rec()
+        return
+        
+            
+
+
+
+    def ciclos(self):
+        self.__node_queue=MQueue()
+        self.__cycle_list=[]
+        self.__node_queue.push(self.__nodes[0])
+        self.__ciclos_rec()
+
+        self.__clear_visited_edges()
+        return self.__cycle_list.copy()
+
+
 
     '''
 ========================================================
@@ -375,4 +496,37 @@ class Graph:
             if len(node.__edges) == conn_number:
                 r_node.append(node)
         return r_node,conn_number
+
+
+        print("atual:",curr," ","node:",node.name,end=" ")
+        if self.__visited_edge[from_edge] == False:
+            self.__visited_edge[from_edge]=True
+            print("grau:",self.grau_vertice(n_ind),end="")
+            action=''
+            if self.grau_vertice(n_ind) > 1:
+                if len(self.__node_curr)-1 == curr: #já tem um ciclo em curr
+                    if self.grau_vertice(n_ind) == 2:
+                        action='update'
+                    else:
+                        action='new'
+                else:
+                    action='new'
+            else:
+                action='update'
+            if action == 'new':
+                print("\nComecar novo ciclo\n")
+                for ed,destt in self.__connections[node].items():
+                    if ed != from_edge:
+                        in_dst = self.__nodes.index(destt)
+                        self.__ciclos_rec(curr+1,destt,in_dst,ed)
+            elif action == 'update':
+                print("\nContinuar anterior",curr,"\n")
+                for ed,destt in self.__connections[node].items():
+                    if ed != from_edge:
+                        in_dst = self.__nodes.index(destt)
+                        self.__ciclos_rec(curr,destt,in_dst,ed)
+        
+        else: # Encontrou um ciclo
+            print("\nEncontrou um ciclo!\n")
+            cl_ind = self.__edge_curr[from_edge]
     '''
