@@ -19,4 +19,4 @@ class Edge:
 
     def __del__(self):
         self.owner.remove_edge(self)
-        print("Edge",self.name,"deleted!")
+        #print("Edge",self.name,"deleted!")

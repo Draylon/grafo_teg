@@ -301,7 +301,7 @@ class Graph:
         return edge_cycle
         
 
-    def ciclico(self,ls_c):
+    def ciclico(ls_c):
         if len(ls_c) > 0:
             return True
         return False
@@ -317,28 +317,28 @@ class Graph:
 
 
     def __ciclo_def(self,ind,curr,targ,from_ed):
-        print("Current:",ind,"targ:",targ.name,end=" | ")
+        #print("Current:",ind,"targ:",targ.name,end=" | ")
         
         for ed,dest in self.__connections[curr].items():
             if ed not in from_ed and self.__visited_edge[ed] == True:
                 from_ed.append(ed)
-                print("node:",curr.name,"edge:",ed.name,"dest:",dest.name)
+                #print("node:",curr.name,"edge:",ed.name,"dest:",dest.name)
                 try:
                     try:
                         indnode=self.__cycle_list[ind].index(curr)
-                        print(curr.name,"already exists")
+                        #print(curr.name,"already exists")
                         self.__cycle_list[ind]=self.__cycle_list[ind][:(indnode+1)]
                     except Exception as exde:
-                        print("err",curr.name,"not found")
-                        print("adding",curr.name,"to list\n")
+                        #print("err",curr.name,"not found")
+                        #print("adding",curr.name,"to list\n")
                         self.__cycle_list[ind]+=[curr]
                     if dest==targ:
-                        print("Found=====\n")
+                        #print("Found=====\n")
                         self.__cycle_list[ind]+=[dest]
-                        print("added-found",dest.name,self.__cycle_list[ind][-1].name)
+                        #print("added-found",dest.name,self.__cycle_list[ind][-1].name)
                 except ValueError as exc:
-                    print("err",curr.name,"not found")
-                    print("adding",curr.name,"to list\n")
+                    #print("err",curr.name,"not found")
+                    #print("adding",curr.name,"to list\n")
                     self.__cycle_list[ind]+=[curr]
                 except Exception as exc:
                     print(exc)
@@ -351,7 +351,7 @@ class Graph:
                 '''try:
                     rind=from_ed.index(ed)
                     if (len(from_ed)-1-rind) != 0 and self.__cycle_list[ind][len(self.__cycle_list[ind])-1][1] != 2:
-                        print("removing",rind)
+                        #print("removing",rind)
                         self.__cycle_list[ind][rind][1]=0
                         self.__cycle_list[ind][rind+1][1]=0
                 except Exception as identifier:
@@ -363,35 +363,33 @@ class Graph:
     def __ciclos_rec(self):
         node = self.__node_queue.pop()
         if node:
-            print("popped",node.name)
+            ##print("popped",node.name)
             for ed,dest in self.__connections[node].items():
                 if self.__visited_edge[ed] == False:
-                    print("going to",dest.name,"with",ed.name)
+                    #print("going to",dest.name,"with",ed.name)
                     if self.__node_queue.has(dest):
-                        print(dest.name,"already exists in queue")
+                        #print(dest.name,"already exists in queue")
                         self.__visited_edge[ed]=True
-                        print("\ndetecting cycle\n")
+                        #print("\ndetecting cycle\n")
                         self.__cycle_list.append([])
                         self.__ciclo_def(len(self.__cycle_list)-1,node,dest,[ed])
-                        print("\ncycle done\n")
+                        #print("\ncycle done\n")
                         for li in self.__cycle_list[-1]:
                             if li == True:
-                                print("Done")
+                                #print("Done")
                                 continue
-                            print(li.name,end=" | ")
-                        print("//")
+                            #print(li.name,end=" | ")
+                        #print("//")
                         if len(self.__cycle_list[-1]) < 3:
                             self.__cycle_list.pop()
                             break
                     else:
-                        print("adding",dest.name)
+                        #print("adding",dest.name)
                         self.__node_queue.push(dest)
                         self.__visited_edge[ed]=True
             return self.__ciclos_rec()
         return
         
-            
-
 
 
     def ciclos(self):
@@ -441,7 +439,7 @@ class Graph:
         self.__connections.clear()
         self.__visited_edge.clear()
         self.__visited_node.clear()
-        print("Graph",self.name,"Deleted!")
+        #print("Graph",self.name,"Deleted!")
 
 
 

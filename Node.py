@@ -16,7 +16,7 @@ class Node:
 
     def __del__(self):
         self.owner.remove_node(self)
-        print("Node",self.name,"deleted!")
+        #print("Node",self.name,"deleted!")
 
 '''
 class Vertice:
