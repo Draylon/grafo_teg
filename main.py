@@ -44,3 +44,8 @@ g3.add_edge(n3,n4)
 print_arvore(g1)
 print_arvore(g2)
 print_arvore(g3)
+
+
+g4 = Graph("Questao 2-conexo-1-ponte")
+
+g5 = Graph("Questao 2-conexo-+1-ponte")
