@@ -1,62 +1,46 @@
 from Graph import Graph
 
-g = Graph("Questao 1-conexo-ciclico")
-n1=g.add_node()
-n2=g.add_node()
-n3=g.add_node()
-n4=g.add_node()
+def print_arvore(gs):
+    if gs.arvore(gs.ciclos()) == True:
+        print("ARVORE\n")
+    else:
+        print("NAO É ARVORE\n")
 
-e1=g.add_edge(n1,n2)
-e2=g.add_edge(n1,n3)
-e3=g.add_edge(n3,n2)
-e4=g.add_edge(n1,n4)
-e5=g.add_edge(n3,n4)
+g1 = Graph("Questao 1-conexo-ciclico")
+n1=g1.add_node()
+n2=g1.add_node()
+n3=g1.add_node()
+n4=g1.add_node()
 
-gconexo=g.conexo()
-gciclico=Graph.ciclico(g.ciclos())
+g1.add_edge(n1,n2)
+g1.add_edge(n1,n3)
+g1.add_edge(n3,n2)
+g1.add_edge(n1,n4)
+g1.add_edge(n3,n4)
 
-if(gconexo and gciclico):
-    print("ARVORE")
-else:
-    print("NAO É ARVORE")
+g2 = Graph("Questao 1-conexo-aciclico")
+n1=g2.add_node()
+n2=g2.add_node()
+n3=g2.add_node()
+n4=g2.add_node()
+n5=g2.add_node()
+n6=g2.add_node()
 
+g2.add_edge(n1,n2)
+g2.add_edge(n1,n3)
+g2.add_edge(n2,n4)
+g2.add_edge(n2,n5)
+g2.add_edge(n3,n6)
 
-g = Graph("Questao 1-conexo-aciclico")
-n1=g.add_node()
-n2=g.add_node()
-n3=g.add_node()
-n4=g.add_node()
-n5=g.add_node()
-n6=g.add_node()
+g3 = Graph("Questao 1-desconexo")
+n1=g3.add_node()
+n2=g3.add_node()
+n3=g3.add_node()
+n4=g3.add_node()
 
-e1=g.add_edge(n1,n2)
-e2=g.add_edge(n1,n3)
-e3=g.add_edge(n2,n4)
-e4=g.add_edge(n2,n5)
-e5=g.add_edge(n3,n6)
+g3.add_edge(n1,n2)
+g3.add_edge(n3,n4)
 
-gconexo=g.conexo()
-gciclico=Graph.ciclico(g.ciclos())
-
-if(gconexo and gciclico):
-    print("ARVORE")
-else:
-    print("NAO É ARVORE")
-
-
-g = Graph("Questao 1-desconexo")
-n1=g.add_node()
-n2=g.add_node()
-n3=g.add_node()
-n4=g.add_node()
-
-e1=g.add_edge(n1,n2)
-e2=g.add_edge(n3,n4)
-
-gconexo=g.conexo()
-gciclico=Graph.ciclico(g.ciclos())
-
-if(gconexo and gciclico):
-    print("ARVORE")
-else:
-    print("NAO É ARVORE")
+print_arvore(g1)
+print_arvore(g2)
+print_arvore(g3)

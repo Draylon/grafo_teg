@@ -287,10 +287,10 @@ class Graph:
             print(ed.name,end=" ")
         print()
 
-    def pontes(self,ls_c):
+    def pontes(self,lista_ciclos):
         edge_cycle = set()
         self.__clear_visited_edges()
-        for nd_list in ls_c:
+        for nd_list in lista_ciclos:
             for nd in nd_list:
                 for edg,dest1 in self.__connections[nd].items():
                     if dest1 in nd_list:
@@ -301,13 +301,20 @@ class Graph:
         return edge_cycle
         
 
-    def ciclico(ls_c):
-        if len(ls_c) > 0:
+    def arvore(self,lista_ciclos):
+        if(not Graph.ciclico(lista_ciclos) and self.conexo()[0] == True):
+            return True
+        else:
+            return False
+
+
+    def ciclico(lista_ciclos):
+        if len(lista_ciclos) > 0:
             return True
         return False
         
-    def print_ciclos(ls_c):
-        for nd_list in ls_c:
+    def print_ciclos(lista_ciclos):
+        for nd_list in lista_ciclos:
             for nd in nd_list:
                 if nd == True:
                     print("Done")
@@ -471,9 +478,9 @@ class Graph:
         subg = self.sub_grafos()
         legc=len(subg)
         if legc == 1:
-            print("Grafo conexo, com",legc,"subconjunto")
+            #print("Grafo conexo, com",legc,"subconjunto")
             return True,legc
-        print("Grafo disconexo, com",legc,"subconjuntos")
+        #print("Grafo disconexo, com",legc,"subconjuntos")
         return False,legc
 
 
