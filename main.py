@@ -32,6 +32,8 @@ g2.add_edge(n2,n4)
 g2.add_edge(n2,n5)
 g2.add_edge(n3,n6)
 
+# Passei por aqui
+
 g3 = Graph("Questao 1-desconexo")
 n1=g3.add_node()
 n2=g3.add_node()
