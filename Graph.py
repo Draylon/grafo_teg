@@ -533,6 +533,51 @@ class Graph:
         return False,legc
 
 
+
+
+    def __saltos_rec(self,last,efrom,node,indc,lim,mode):
+        rotas = self.get_connections(node)
+        if len(rotas) == 1:
+            return node,None
+        else:
+            for edr,desr in rotas.items():
+                if desr != last:
+                    if mode == 1:
+                        if indc >= lim:
+                            return node,self.__saltos_rec(node,edr,desr,indc,lim,mode)
+                        else:
+                            return self.__saltos_rec(node,edr,desr,indc+1,lim,mode)
+                    elif mode == 0:
+                        if indc < lim-1:
+                            return node,self.__saltos_rec(node,edr,desr,indc+1,lim,mode)
+                        else:
+                            return node,None
+                    else:
+                        return None
+            return None
+
+    def saltos(self,node_init,saltos,mode):
+        """
+            Mode: 1 = nodes que estão além do numero de saltos
+            Mode: 0 = nodes que vão até do numero de saltos
+        """
+        saltos_list = []
+        for edc,destc in self.get_connections(node_init).items():
+            saltos_list.append(self.__saltos_rec(node_init,edc,destc,1,saltos,mode) )
+        return saltos_list
+
+    def print_saltos(lista_saltos):
+        for direcao_salto in lista_saltos:
+            print(direcao_salto[0].name,end=" ")
+            
+            while direcao_salto[1] != None:
+                direcao_salto=direcao_salto[1]
+                print(direcao_salto[0].name,end=" ")
+            print()
+
+
+
+
     '''def most_connected(self):
         conn_number = -1
         r_node = []

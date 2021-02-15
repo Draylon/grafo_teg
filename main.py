@@ -178,62 +178,40 @@ while len(lista_palavras) > 0:
 #=====================                     =======================
 #=================================================================
 
-lista_subgrafos = g6.sub_grafos()
-
-id_maior_lista=0
-maior_lista=0
-lista_len = len(lista_subgrafos)
-lista_li = 0
-
 #g6.print()
+
+
+#====   QUESTAO 3 - 1
+
+
+lista_subgrafos = g6.sub_grafos()
 
 g6.print_subgrafos(lista_subgrafos)
 
 arr1, ammo = g6.most_connected_objects()
 
-
-#====   QUESTAO 3 - 1
 print("Mais conectados:")
 for n1 in arr1:
     print(n1.name,end=" ")
 
 print("\n\nGrau "+str(ammo))
 
+
 #====  QUESTAO 3 - 2
+
 
 print("\nQuestao 3.2")
 print("Bipartido" if g6.bipartido(lista_nodes[0]) == True else "Nao Bipartido")
 
 
-
 #====  QUESTAO 3 - 3
 
-def saltos(last,efrom,node,indc,lim=3):
-    rotas = g6.get_connections(node)
-    if len(rotas) == 1:
-        return node,None
-    else:
-        for edr,desr in rotas.items():
-            if desr != last:
-                if indc >= lim:
-                    return node,saltos(node,edr,desr,indc,lim)
-                else:
-                    return saltos(node,edr,desr,indc+1,lim)
-        return None
 
+saltos_list_before = g6.saltos(lista_nodes[0],3,0)
+saltos_list_after  = g6.saltos(lista_nodes[0],3,1)
 
-lista_conn_caiado = g6.get_connections(lista_nodes[0])
-
-saltos_list = []
-for edc,destc in lista_conn_caiado.items():
-    saltos_list.append(saltos(lista_nodes[0],edc,destc,1))
+print("\nSaltos antes do 3°")
+Graph.print_saltos(saltos_list_before)
 
 print("\nSaltos apartir do 3°")
-for direcao_salto in saltos_list:
-    print(direcao_salto[0].name,end=" ")
-    
-    while direcao_salto[1] != None:
-        direcao_salto=direcao_salto[1]
-        print(direcao_salto[0].name,end=" ")
-    print()
-
+Graph.print_saltos(saltos_list_after)
