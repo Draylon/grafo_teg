@@ -60,8 +60,16 @@ class Graph:
             if dstn == node:
                 self.remove_edge(ed)
         
+
+    def get_index_from_node(self,node):
+        return self.__nodes.index(node)
     def get_node_from_index(self,index):
         return self.__nodes[index]
+
+    def get_edge(self,node1,node2):
+        for edg,node22 in self.__connections[node1].items():
+            if node22 == node2:
+                return edg
 
     def get_connections(self,node):
         return self.__connections[node]
@@ -100,6 +108,26 @@ class Graph:
     
     
     
+    def bipartido(self, node_init): 
+        matrix_len = len(self.__nodes)
+        init_index=self.get_index_from_node(node_init)
+        self.__b_colors = [-1]*matrix_len
+        self.__b_colors[init_index] = 1
+        self.__b_queue = []
+        self.__b_queue.append(init_index)
+        while self.__b_queue:
+            dest_ = self.__b_queue.pop()
+            if self.matrix[dest_][dest_] == 1: 
+                return False
+            for i in range(matrix_len):
+                if self.matrix[dest_][i] == 1 and self.__b_colors[dest_] == -1:
+                    self.__b_colors[i] = 1 - self.__b_colors[dest_] 
+                    queue.append(v)
+                elif self.matrix[dest_][i] == 1 and self.__b_colors[i] == self.__b_colors[dest_]:
+                    return False
+        return True
+        
+
     #  ==================================
 
 
