@@ -1,5 +1,11 @@
 from Graph import Graph
 
+'''
+
+    Alunos: Draylon Lopes e Victor Bernardes
+
+'''
+
 def print_arvore(gs):
     if gs.arvore(gs.ciclos()) == True:
         print("ARVORE\n")
