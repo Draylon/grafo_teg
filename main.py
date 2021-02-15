@@ -46,7 +46,7 @@ n4=g3.add_node()
 g3.add_edge(n1,n2)
 g3.add_edge(n3,n4)
 
-print("Questao 1:")
+print("==============           Questao 1:         ===============")
 
 print_arvore(g1)
 print_arvore(g2)
@@ -72,8 +72,8 @@ g4.add_edge(n4,n6)
 g4.add_edge(n5,n6)
 g4.add_edge(n1,n4,"g4-Ponte1")
 
-print("Questao 2:")
-print("\nPontes g1")
+print("==============           Questao 2:         ===============")
+print("Pontes g1")
 Graph.print_pontes(g1.pontes(g1.ciclos()))
 print("\nPontes g4")
 Graph.print_pontes(g4.pontes(g4.ciclos()))
@@ -118,15 +118,17 @@ g5.add_edge(n1,n4,"g5-Ponte1")
 g5.add_edge(n1,n7,"g5-Ponte2")
 
 g5.add_edge(n1,n10,"g5-Ponte3")
-print("Pontes g5")
+print("\nPontes g5")
 Graph.print_pontes(g5.pontes(g5.ciclos()))
-
+print("")
 
 #===================================================
 #================               ====================
 #================   QUESTAO 3   ====================
 #================               ====================
 #===================================================
+
+print("==============           Questao 3:         ===============")
 
 def similar(n1,n2):
     if len(n1) != len(n2):

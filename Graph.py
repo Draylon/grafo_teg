@@ -34,7 +34,7 @@ class Graph:
         return n
 
     def remove_node(self,node): # remove from graph
-        if node == None:
+        if node == None or node == False:
             return
         try:
             if self.__edges == {} or self.__nodes == []:
