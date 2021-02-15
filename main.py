@@ -46,9 +46,11 @@ n4=g3.add_node()
 g3.add_edge(n1,n2)
 g3.add_edge(n3,n4)
 
-#print_arvore(g1)
-#print_arvore(g2)
-#print_arvore(g3)
+print("Questao 1:")
+
+print_arvore(g1)
+print_arvore(g2)
+print_arvore(g3)
 
 #=================================================
 #=================================================
@@ -68,9 +70,13 @@ g4.add_edge(n2,n3)
 g4.add_edge(n4,n5)
 g4.add_edge(n4,n6)
 g4.add_edge(n5,n6)
-g4.add_edge(n1,n4,"Stonks")
+g4.add_edge(n1,n4,"g4-Ponte1")
 
-#Graph.print_pontes(g4.pontes(g4.ciclos()))
+print("Questao 2:")
+print("\nPontes g1")
+Graph.print_pontes(g1.pontes(g1.ciclos()))
+print("\nPontes g4")
+Graph.print_pontes(g4.pontes(g4.ciclos()))
 
 
 #=================================================
@@ -108,16 +114,19 @@ g5.add_edge(n10,n11)
 g5.add_edge(n10,n12)
 g5.add_edge(n11,n12)
 
-g5.add_edge(n1,n4,"Stonks")
-g5.add_edge(n1,n7,"Stonks2")
+g5.add_edge(n1,n4,"g5-Ponte1")
+g5.add_edge(n1,n7,"g5-Ponte2")
 
-g5.add_edge(n1,n10,"Stonks3")
+g5.add_edge(n1,n10,"g5-Ponte3")
+print("Pontes g5")
+Graph.print_pontes(g5.pontes(g5.ciclos()))
 
-#Graph.print_pontes(g5.pontes(g5.ciclos()))
 
-
-#=================================================
-#=================================================
+#===================================================
+#================               ====================
+#================   QUESTAO 3   ====================
+#================               ====================
+#===================================================
 
 def similar(n1,n2):
     if len(n1) != len(n2):
@@ -136,7 +145,6 @@ def similar(n1,n2):
 
 lista_nodes = []
 lista_palavras = ['caiado', 'cavado', 'cavalo', 'girafa', 'girava', 'ralo', 'ramo', 'rata', 'rato', 'remo', 'reta', 'reto', 'rota', 'vaiado', 'varado', 'virada', 'virado', 'virava', 'rita', 'cavala', 'cabala']
-#lista_palavras = ['caiado', 'cavado', 'cavalo', 'girafa', 'girava']
 del_count=0
 
 node_selecionado=None
@@ -160,7 +168,59 @@ while len(lista_palavras) > 0:
         node_i+=1
     node_selecionado=None
 
+#=================================================================
+#=====================                     =======================
+#=====================      fim-codigo     =======================
+#=====================                     =======================
+#=================================================================
 
-g6.print()
 lista_subgrafos = g6.sub_grafos()
+
+id_maior_lista=0
+maior_lista=0
+lista_len = len(lista_subgrafos)
+lista_li = 0
+
+#g6.print()
+
 g6.print_subgrafos(lista_subgrafos)
+
+arr1, ammo = g6.most_connected_objects()
+
+
+#====   QUESTAO 3 - 1
+print("Mais conectados:")
+for n1 in arr1:
+    print("Node "+n1.name)
+
+print("Grau "+str(ammo))
+
+#====  QUESTAO 3 - 2
+
+def saltos(last,efrom,node,indc,lim=3):
+    rotas = g6.get_connections(node)
+    if len(rotas) == 1:
+        return node,None
+    else:
+        for edr,desr in rotas.items():
+            if desr != last:
+                if indc >= lim:
+                    return node,saltos(node,edr,desr,indc,lim)
+                else:
+                    return saltos(node,edr,desr,indc+1,lim)
+        return None
+
+
+lista_conn_caiado = g6.get_connections(lista_nodes[0])
+
+saltos_list = []
+for edc,destc in lista_conn_caiado.items():
+    saltos_list.append(saltos(lista_nodes[0],edc,destc,1))
+
+for direcao_salto in saltos_list:
+    print(direcao_salto[0].name,end=" ")
+    
+    while direcao_salto[1] != None:
+        direcao_salto=direcao_salto[1]
+        print(direcao_salto[0].name,end=" ")
+    print()

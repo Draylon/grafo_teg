@@ -34,6 +34,8 @@ class Graph:
         return n
 
     def remove_node(self,node): # remove from graph
+        if node == None:
+            return
         try:
             if self.__edges == {} or self.__nodes == []:
                 return
@@ -58,7 +60,11 @@ class Graph:
             if dstn == node:
                 self.remove_edge(ed)
         
-         
+    def get_node_from_index(self,index):
+        return self.__nodes[index]
+
+    def get_connections(self,node):
+        return self.__connections[node]
 
     def __zero_matrix_at(self,index):
         ic=0
@@ -245,6 +251,21 @@ class Graph:
 
             xn+=1
         return most_,ammo
+
+
+    def most_connected_objects(self):
+        ind_l,ammo = self.most_connected()
+        nodes=[]
+        for ind in ind_l:
+            nodes.append(self.get_node_from_index(ind))
+        return nodes,ammo
+
+    def least_connected_objects(self):
+        ind_l,ammo = self.least_connected()
+        nodes=[]
+        for ind in ind_l:
+            nodes.append(self.get_node_from_index(ind))
+        return nodes,ammo
 
 
     def next_node(self,node,edge):
