@@ -130,6 +130,8 @@ print("")
 
 print("==============           Questao 3:         ===============")
 
+print("\nQuestao 3.1\n")
+
 def similar(n1,n2):
     if len(n1) != len(n2):
         return False
@@ -193,27 +195,14 @@ arr1, ammo = g6.most_connected_objects()
 #====   QUESTAO 3 - 1
 print("Mais conectados:")
 for n1 in arr1:
-    print("Node "+n1.name)
+    print(n1.name,end=" ")
 
-print("Grau "+str(ammo))
+print("\n\nGrau "+str(ammo))
 
 #====  QUESTAO 3 - 2
 
-g7 = Graph("teste1")
-nn1=g7.add_node("n11")
-nn2=g7.add_node("n12")
-nn3=g7.add_node("n13")
-nn4=g7.add_node("n14")
-g7.add_edge(nn1,nn2)
-g7.add_edge(nn2,nn3)
-g7.add_edge(nn3,nn4)
-g7.add_edge(nn4,nn1)
-
-g7.print_matriz()
-
 print("\nQuestao 3.2")
-print(g6.bipartido(lista_nodes[0]))
-print(g7.bipartido(nn1))
+print("Bipartido" if g6.bipartido(lista_nodes[0]) == True else "Nao Bipartido")
 
 
 
@@ -239,7 +228,7 @@ saltos_list = []
 for edc,destc in lista_conn_caiado.items():
     saltos_list.append(saltos(lista_nodes[0],edc,destc,1))
 
-print("\n\nSaltos apartir do 3°")
+print("\nSaltos apartir do 3°")
 for direcao_salto in saltos_list:
     print(direcao_salto[0].name,end=" ")
     

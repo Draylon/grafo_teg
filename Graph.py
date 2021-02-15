@@ -41,18 +41,18 @@ class Graph:
                 return
             #print("removing",node.name,"from",self.name)
             ind=self.__nodes.index(node)
-            self.disconnect_node(node)
             self.__remove_from_matrix(ind)
+            self.disconnect_node(node)
             self.__nodes.pop(ind)
             self.__visited_node.pop(node)
             self.__connections.pop(node)
             
         except Exception as exp:
-            print("error removing node",exp)
+            pass
+            #print("error removing node",exp)
 
     def disconnect_node(self,node): # delete all edges
         ind=self.__nodes.index(node)
-        print("disconnecting node",node.name)
         for edge,_ in self.__visited_node[node].items():
             del edge
         self.__zero_matrix_at(ind)
@@ -111,19 +111,19 @@ class Graph:
     def bipartido(self, node_init): 
         matrix_len = len(self.__nodes)
         init_index=self.get_index_from_node(node_init)
-        self.__b_colors = [-1]*matrix_len
-        self.__b_colors[init_index] = 1
-        self.__b_queue = []
-        self.__b_queue.append(init_index)
-        while self.__b_queue:
-            dest_ = self.__b_queue.pop()
+        b_colors = [-1]*matrix_len
+        b_colors[init_index] = 1
+        b_queue = []
+        b_queue.append(init_index)
+        while b_queue:
+            dest_ = b_queue.pop()
             if self.matrix[dest_][dest_] == 1: 
                 return False
             for i in range(matrix_len):
-                if self.matrix[dest_][i] == 1 and self.__b_colors[dest_] == -1:
-                    self.__b_colors[i] = 1 - self.__b_colors[dest_] 
+                if self.matrix[dest_][i] == 1 and b_colors[dest_] == -1:
+                    b_colors[i] = 1 - b_colors[dest_] 
                     queue.append(v)
-                elif self.matrix[dest_][i] == 1 and self.__b_colors[i] == self.__b_colors[dest_]:
+                elif self.matrix[dest_][i] == 1 and b_colors[i] == b_colors[dest_]:
                     return False
         return True
         
