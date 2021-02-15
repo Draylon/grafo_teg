@@ -162,3 +162,5 @@ while len(lista_palavras) > 0:
 
 
 g6.print()
+lista_subgrafos = g6.sub_grafos()
+g6.print_subgrafos(lista_subgrafos)
