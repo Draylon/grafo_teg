@@ -1,5 +1,5 @@
 __pycache__
 *.zip
-*.nogit
+*.no_git
 queue.py
 *matriz.py
