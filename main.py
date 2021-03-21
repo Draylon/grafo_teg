@@ -1,4 +1,5 @@
 from Graph import Graph
+from networkx_adapter import *
 
 '''
 
@@ -42,16 +43,18 @@ for node,index in lst.items():
     print(node," tem profundidade ",index)
 
 lst2 = grafo.dfs_paths(s,t)
+
 '''edges = grafo.fluxo(s,t,1)
 for edge in edges:
     print(edge)'''
 
-
-
-flow = grafo.edmondsKarp(s,t)
+'''flow = grafo.edmondsKarp(s,t)
 print("Edmonds Karp",flow)
 
 print("Ford Fulkerson",grafo.ford_fulkerson(s,t))
 
 grafo.print_matriz('capacidade')
-grafo.print_matriz('fluxo')
+grafo.print_matriz('fluxo')'''
+
+nxg = create_networkx_graph(grafo)
+networkx_draw(nxg)

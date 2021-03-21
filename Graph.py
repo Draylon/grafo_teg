@@ -71,6 +71,16 @@ class Graph:
     def get_node_from_index(self, index):
         return self.__nodes[index]
 
+    def get_node_dictionary(self):
+        dicct = {}
+        for i,e in enumerate(self.__nodes):
+            dicct[i]=e
+        return dicct
+
+    def get_nodes(self):return self.__nodes
+
+    def get_edges(self): return self.__edges
+
     def get_edge(self, node1, node2):
         if self.__direcionado is True:
             return self.__node_conns[node1][node2]
@@ -643,9 +653,6 @@ class Graph:
         del self.__pathing_list
         return cp1
 
-    def corte_minimo(self):
-        pass
-
     def calcular_fluxo(self,node):
         """
         SOMAR OS FLUXOS DO VÉRTICE DE SAÍDA
@@ -655,14 +662,14 @@ class Graph:
             fluxo+=edge.getFlux()
         return fluxo
 
-    '''def fluxo(self,departure,arrival,modo):
+    def corte(self,departure,arrival,modo):
         """
-        FLUXO MÁXIMO FUNCIONA ITERANDO POR TODOS OS CAMINHOS E VENDO QUAL É O
-        MENOR VALOR DE FLUXO\n
-        Modo = 1 => Fluxo máximo\n
-        Modo = 0 => Fluxo mínimo\n
+        CORTE FUNCIONA ITERANDO POR TODOS OS CAMINHOS E VENDO QUAL É O
+        VALOR DE FLUXO\n
+        Modo = 1 => Corte máximo\n
+        Modo = 0 => Corte mínimo\n
         :return:
-        Edge com a menor capacidade ( pode ser acessado por .get_capacidade() )
+        Edge com a capacidade selecionada ( pode ser acessado por .get_capacidade() )
         """
         if modo != 0 and modo != 1:
             raise Exception("Modo incorreto")
@@ -672,19 +679,19 @@ class Graph:
         self.__clear_visited_edges()
         self.__pathing_rec(departure, arrival,True)
         len_fluxos = len(self.__pathing_list)
-        edges_maximos = list(range(len_fluxos))
+        edges_list = list(range(len_fluxos))
         for path_i in range(len_fluxos): # iterando por todos os caminhos
-            min_flux=None
+            s_flux=None
             for sel_edge in self.__pathing_list[path_i]: # iterando por
                 if modo == 0: # mínimo
-                    if min_flux == None or min_flux.get_capacidade() < sel_edge.get_capacidade():
-                        min_flux = sel_edge
+                    if s_flux == None or s_flux.get_capacidade() < sel_edge.get_capacidade():
+                        s_flux = sel_edge
                 elif modo == 1:
-                    if min_flux == None or min_flux.get_capacidade() > sel_edge.get_capacidade():
-                        min_flux = sel_edge
-            edges_maximos[path_i] = min_flux
+                    if s_flux == None or s_flux.get_capacidade() > sel_edge.get_capacidade():
+                        s_flux = sel_edge
+            edges_list[path_i] = s_flux
         del self.__pathing_list
-        return edges_maximos'''
+        return edges_list
 
     import decimal
 
