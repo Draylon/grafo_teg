@@ -9,13 +9,17 @@ class Node:
         if name: self.name=name
         else: self.name='n'+str(self.id)
         
-        Node.index=Node.index+1
+        Node.index+=1
     
     def copy(self):
         return Node(self.owner,self.name)
 
+    def __index__(self):
+        return self.id
+
     def __del__(self):
         self.owner.remove_node(self)
+        #Node.index-=1
         #print("Node",self.name,"deleted!")
 
     def __repr__(self):

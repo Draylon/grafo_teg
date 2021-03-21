@@ -15,6 +15,7 @@ class Graph:
         self.__nodes = []
         self.__edges = {}
         self.__connections = {}
+        self.__node_conns = {}
         self.__visited_node = {}
         self.__visited_edge = {}
 
@@ -33,6 +34,7 @@ class Graph:
         self.__new_to_matrix()
         self.__visited_node[n] = False
         self.__connections[n] = {}
+        self.__node_conns[n] = {}
         return n
 
     def remove_node(self, node):  # remove from graph
@@ -48,6 +50,7 @@ class Graph:
             self.__nodes.pop(ind)
             self.__visited_node.pop(node)
             self.__connections.pop(node)
+            self.__node_conns.pop(node)
 
         except Exception as exp:
             pass
@@ -69,9 +72,16 @@ class Graph:
         return self.__nodes[index]
 
     def get_edge(self, node1, node2):
-        for edg, node22 in self.__connections[node1].items():
-            if node22 == node2:
-                return edg
+        if self.__direcionado is True:
+            return self.__node_conns[node1][node2]
+        else:
+            try:
+                return self.__node_conns[node1][node2]
+            except KeyError as kr:
+                try:
+                    return self.__node_conns[node2][node1]
+                except KeyError as kr2:
+                    return None
 
     def get_connections(self, node):
         return self.__connections[node]
@@ -108,7 +118,67 @@ class Graph:
         self.matrix[i][j] += val
         if self.__direcionado is False and i != j: self.matrix[j][i] += val
 
-    #  ==================================
+    def next_node(self, node, edge):
+        try:
+            return self.connections[node][edge]
+        except Exception as identifier:
+            return None
+
+    '''
+========================================================
+========================================================
+========================================================
+    '''
+
+    def add_edge(self, node1, node2, name=None,capacidade=0,fluxo=0):
+        if node1 not in self.__nodes or node2 not in self.__nodes:
+            return None
+        l1 = self.__nodes.index(node1)
+        l2 = self.__nodes.index(node2)
+        e = Edge(self, 1, name, self.__direcionado,capacidade,fluxo)
+        self.__update_to_matrix(l1, l2, 1)
+
+        self.__connections[node1][e] = node2
+        self.__node_conns[node1][node2]=e
+        self.__edges[e] = node1
+        if self.__direcionado == False and node1 != node2:
+            self.__connections[node2][e] = node1
+            self.__node_conns[node2][node1]=e
+
+        self.__visited_edge[e] = False
+        return e
+
+    def __add_edge_man(self, node1, node2, xi, yi, name=None):
+        e = Edge(self, 1, name, self.__direcionado)
+        self.__connections[node1][e] = node2
+        self.__node_conns[node1][node2] = e
+        self.__edges[e] = node1
+        if self.__direcionado == False and xi != yi:
+            self.__connections[node2][e] = node1
+            self.__node_conns[node2][node1] = e
+        self.__visited_edge[e] = False
+        return e
+
+    def remove_edge(self, edge):
+        # print("removing",edge.name,"from",self.name)
+        try:
+            if self.__edges == {} or self.__nodes == []:
+                return
+            from_ = self.__edges[edge]
+            to_ = self.__connections[from_][edge]
+            self.__connections[from_].pop(edge)
+            self.__connections[to_].pop(edge)
+            self.__node_conns[from_].pop(to_)
+            self.__visited_edge.pop(edge)
+            self.__edges.pop(edge)
+        except Exception as exp:
+            print("error removing edge", edge.name, "\nerr:", exp)
+
+    '''
+    ========================================================
+    ========================================================
+    ========================================================
+        '''
 
     def bipartido(self, node_init):
         matrix_len = len(self.__nodes)
@@ -128,48 +198,11 @@ class Graph:
                     return False
         return True
 
-    #  ==================================
-
-    def add_edge(self, node1, node2, name=None):
-        if node1 not in self.__nodes or node2 not in self.__nodes:
-            return None
-        l1 = self.__nodes.index(node1)
-        l2 = self.__nodes.index(node2)
-        e = Edge(self, 1, name, self.__direcionado)
-        self.__update_to_matrix(l1, l2, 1)
-
-        self.__connections[node1][e] = node2
-        self.__edges[e] = node1
-        if self.__direcionado == False and node1 != node2:
-            self.__connections[node2][e] = node1
-
-        self.__visited_edge[e] = False
-        return e
-
-    def __add_edge_man(self, node1, node2, xi, yi, name=None):
-        e = Edge(self, 1, name, self.__direcionado)
-        self.__connections[node1][e] = node2
-        self.__edges[e] = node1
-        if self.__direcionado == False and xi != yi:
-            self.__connections[node2][e] = node1
-        self.__visited_edge[e] = False
-        return e
-
-    def remove_edge(self, edge):
-        # print("removing",edge.name,"from",self.name)
-        try:
-            if self.__edges == {} or self.__nodes == []:
-                return
-            from_ = self.__edges[edge]
-            to_ = self.__connections[from_][edge]
-            self.__connections[from_].pop(edge)
-            self.__connections[to_].pop(edge)
-            self.__visited_edge.pop(edge)
-            self.__edges.pop(edge)
-        except Exception as exp:
-            print("error removing edge", edge.name, "\nerr:", exp)
-
-    #  ==================================
+    '''
+========================================================
+========================================================
+========================================================
+    '''
 
     def grau_vertice(self, index):
         grau = 0
@@ -182,40 +215,51 @@ class Graph:
         for n in range(len(self.__nodes)):
             print("Node", self.__nodes[n].name, " grau:", self.grau_vertice(n))
 
-    #  ==================================
+    '''
+========================================================
+========================================================
+========================================================
+    '''
 
-    def __pathing_list(self, current, arrival, edge_list=[]):
+    def __pathing_rec(self, current, arrival,allow_visited_edges=False, edge_list=[None],depth=0):
         for edge, dest_ in self.__connections[current].items():
-            if self.__visited_edge[edge] == False:
-                edge_list.append(edge)
-                self.__visited_edge[edge] = True
-                if dest_ == arrival:
-                    self.__pathing_list.append(edge_list)
-                    break
-                else:
-                    self.__pathing_list(dest_, arrival, edge_list)
+            if self.__visited_edge[edge] == True and not allow_visited_edges:
+                return
+            edge_list[depth]=edge
+            if not allow_visited_edges: self.__visited_edge[edge] = True
+            if dest_ == arrival:
+                #edge_list = edge_list[:-1]
+                #edge_list.append(dest_)
+                #print(edge_list[:depth+1])
+                self.__pathing_list.append(edge_list[:depth+1])
+                #return
+                #break
+            else:
+                edge_list.append(None)
+                self.__pathing_rec(dest_, arrival,allow_visited_edges,edge_list,depth+1)
 
     def max_weight(self, departure, arrival):
         if departure not in self.__nodes or arrival not in self.__nodes:
             return -1
         self.__pathing_list = []
-        self.__pathing_list(departure, arrival)
+        self.__pathing_rec(departure, arrival)
         self.__clear_visited_edges()
-        shortest_path = -1
+        longest_path = -1
         for path in self.__pathing_list:
             path_weight = 0
             for edge in path:
                 path_weight = path_weight + edge.weight
-            if path_weight < shortest_path or shortest_path == -1:
+            if path_weight > longest_path:# or longest_path == -1:
                 shortest_path = path_weight
         del self.__pathing_list
+        return longest_path
 
     # percorrer partida até chegada, procurando o menor caminho
     def min_weight(self, departure, arrival):
         if departure not in self.__nodes or arrival not in self.__nodes:
             return -1
         self.__pathing_list = []
-        self.__pathing_list(departure, arrival)
+        self.__pathing_rec(departure, arrival)
         shortest_path = -1
         for path in self.__pathing_list:
             path_weight = 0
@@ -224,8 +268,13 @@ class Graph:
             if path_weight < shortest_path or shortest_path == -1:
                 shortest_path = path_weight
         del self.__pathing_list
+        return shortest_path
 
-    #  ================================
+    '''
+    ========================================================
+    ========================================================
+    ========================================================
+        '''
 
     def __clear_visited_nodes(self):
         for n in self.__visited_node.keys():
@@ -280,12 +329,6 @@ class Graph:
         for ind in ind_l:
             nodes.append(self.get_node_from_index(ind))
         return nodes, ammo
-
-    def next_node(self, node, edge):
-        try:
-            return self.connections[node][edge]
-        except Exception as identifier:
-            return None
 
     def print_subgrafos(self, sg_list):
         for x1, nl in enumerate(sg_list):
@@ -456,11 +499,28 @@ class Graph:
                 print("Erro", ex, "\n")
         print("")
 
-    def print_matriz(self):
-        print("Matriz:")
-        for x in self.matrix:
-            for y in x:
-                print(y, end=" ")
+    def print_matriz(self,modo='pesos'):
+        """
+        :param modo:pesos,capacidade,fluxo
+        :return:
+        """
+        if modo == 'pesos' and modo!='capacidade' and modo!='fluxo':
+            return
+        print("Matriz:",modo)
+        for xi,x in enumerate(self.matrix):
+            for yi,y in enumerate(x):
+                if modo=='pesos':
+                    print(y, end=" ")
+                elif modo=='capacidade':
+                    if self.get_node_from_index(yi) in self.__node_conns[self.get_node_from_index(xi)]:
+                        print(self.__node_conns[self.get_node_from_index(xi)][self.get_node_from_index(yi)].getCap(), end=" ")
+                    else: print(-1,end=' ')
+                elif modo=='fluxo':
+                    if self.get_node_from_index(yi) in self.__node_conns[self.get_node_from_index(xi)]:
+                        print(self.__node_conns[self.get_node_from_index(xi)][self.get_node_from_index(yi)].getFlux(),
+                              end=" ")
+                    else:
+                        print(-1, end=' ')
             print("")
         print("")
 
@@ -468,6 +528,7 @@ class Graph:
         self.__nodes.clear()
         self.__edges.clear()
         self.__connections.clear()
+        self.__node_conns.clear()
         self.__visited_edge.clear()
         self.__visited_node.clear()
         # print("Graph",self.name,"Deleted!")
@@ -546,7 +607,11 @@ class Graph:
                 print(direcao_salto[0].name, end=" ")
             print()
 
-    #  =======================================
+    '''
+    ========================================================
+    ========================================================
+    ========================================================
+    '''
 
     def __dfs_rec(self,init,last=None,iter=0):
         if self.__visited_node[init] < iter and self.__visited_node[init] is not False:
@@ -561,66 +626,158 @@ class Graph:
         self.__dfs_rec(init)
         return self.__visited_node.copy()
 
+    def print_dfs(self,list):
+        for index, path in enumerate(list):
+            print("Caminho", index)
+            for node in path:
+                print(node, end=" - ")
+            print("")
+
+    def dfs_paths(self,departure,arrival):
+        if departure not in self.__nodes or arrival not in self.__nodes:
+            return -1
+        self.__pathing_list = []
+        self.__clear_visited_edges()
+        self.__pathing_rec(departure, arrival,True)
+        cp1 = self.__pathing_list.copy()
+        del self.__pathing_list
+        return cp1
 
     def corte_minimo(self):
         pass
 
-    def fluxo_maximo(self):
+    def calcular_fluxo(self,node):
+        """
+        SOMAR OS FLUXOS DO VÉRTICE DE SAÍDA
+        """
+        fluxo=0
+        for edge,destination in self.__connections[node]:
+            fluxo+=edge.getFlux()
+        return fluxo
+
+    '''def fluxo(self,departure,arrival,modo):
         """
         FLUXO MÁXIMO FUNCIONA ITERANDO POR TODOS OS CAMINHOS E VENDO QUAL É O
-        MENOR VALOR DE FLUXO
+        MENOR VALOR DE FLUXO\n
+        Modo = 1 => Fluxo máximo\n
+        Modo = 0 => Fluxo mínimo\n
         :return:
         Edge com a menor capacidade ( pode ser acessado por .get_capacidade() )
         """
-        pass
+        if modo != 0 and modo != 1:
+            raise Exception("Modo incorreto")
+        if departure not in self.__nodes or arrival not in self.__nodes:
+            return -1
+        self.__pathing_list = []
+        self.__clear_visited_edges()
+        self.__pathing_rec(departure, arrival,True)
+        len_fluxos = len(self.__pathing_list)
+        edges_maximos = list(range(len_fluxos))
+        for path_i in range(len_fluxos): # iterando por todos os caminhos
+            min_flux=None
+            for sel_edge in self.__pathing_list[path_i]: # iterando por
+                if modo == 0: # mínimo
+                    if min_flux == None or min_flux.get_capacidade() < sel_edge.get_capacidade():
+                        min_flux = sel_edge
+                elif modo == 1:
+                    if min_flux == None or min_flux.get_capacidade() > sel_edge.get_capacidade():
+                        min_flux = sel_edge
+            edges_maximos[path_i] = min_flux
+        del self.__pathing_list
+        return edges_maximos'''
 
-    def EdmondsKarp(capacity, neighbors, start, end):
+    import decimal
+
+    def edmondsKarp(self,s, t):
+        n = len(self.__edges)
         flow = 0
-        length = len(capacity)
-        flows = [[0 for i in range(length)] for j in range(length)]
+        F = [[0 for y in range(n)] for x in range(n)]
         while True:
-            max, parent = Graph.BreadthFirstSearch(capacity, neighbors, flows, start, end)
-            print
-            'max:%s' % max
-            print
-            parent
-            if max == 0:
+            P = [-1 for x in range(n)]
+            P[s] = -2
+            M = [0 for x in range(n)]
+            M[s] = decimal.Decimal('Infinity')
+            BFSq = []
+            BFSq.append(s)
+            pathFlow, P = self.BFSEK(s, t, F, P, M, BFSq)
+            if pathFlow == 0:
                 break
-            flow = flow + max
-            v = end
-            while v != start:
-                u = parent[v]
-                flows[u][v] = flows[u][v] + max
-                flows[v][u] = flows[v][u] - max
+            flow = flow + pathFlow
+            v = t
+            while v != s:
+                u = P[v]
+                F[u][v] = F[u][v] + pathFlow
+                F[v][u] = F[v][u] - pathFlow
+
+                self.__node_conns[u][v].setFlux(F[u][v])
+                try:
+                    self.__node_conns[v][u].setFlux(F[v][u])
+                except KeyError as ke:
+                    self.add_edge(v,u)
+                    self.__node_conns[v][u].setFlux(F[v][u])
+
                 v = u
-        return (flow, flows)
+        return flow
 
-    def BreadthFirstSearch(capacity, neighbors, flows, start, end):
-        length = len(capacity)
-        parents = [-1 for i in range(length)]  # parent table
-        parents[start] = -2  # make sure source is not rediscovered
-        M = [0 for i in range(length)]  # Capacity of path to vertex i
-        M[start] = decimal.Decimal('Infinity')  # this is necessary!
+    def BFSEK(self,s, t, F, P, M, BFSq):
+        while (len(BFSq) > 0):
+            u = BFSq.pop(0)
+            for v,e in self.__node_conns[u].items():
+                if e.getCap() - F[u][v] > 0 and P[v] == -1:
+                    P[v] = u
+                    M[v] = min(M[u], e.getCap() - F[u][v])
+                    if v != t:
+                        BFSq.append(v)
+                    else:
+                        return M[t], P
+        return 0, P
 
+    """
+    ===================================
+    ===================================
+    ===================================
+    """
+
+    # Using BFS as a searching algorithm
+    def searching_algo_BFS(self, s, t, parent):
+        visited = [False] * len(self.__nodes)
         queue = []
-        queue.append(start)
+        queue.append(s)
+        visited[s] = True
         while queue:
             u = queue.pop(0)
-            for v in neighbors[u]:
-                # if there is available capacity and v is is not seen before in search
-                if capacity[u][v] - flows[u][v] > 0 and parents[v] == -1:
-                    parents[v] = u
-                    # it will work because at the beginning M[u] is Infinity
-                    M[v] = min(M[u], capacity[u][v] - flows[u][v])  # try to get smallest
-                    if v != end:
-                        queue.append(v)
-                    else:
-                        return M[end], parents
-        return 0, parents
+            for desv, edge in self.__node_conns[u].items():
+                if visited[desv] == False and edge.getCap() > 0:
+                    queue.append(desv)
+                    visited[desv] = True
+                    parent[desv] = u
+        return True if visited[t] else False
 
+    # Applying fordfulkerson algorithm
+    def ford_fulkerson(self, source, sink):
+        parent = [-1] * len(self.__nodes)
+        max_flow = 0
 
-
-
+        while self.searching_algo_BFS(source, sink, parent):
+            path_flow = float("Inf")
+            s = sink
+            while (s != source):
+                path_flow = min(path_flow, self.__node_conns[self.get_node_from_index(parent[s])][s].getCap() )
+                s = parent[s]
+            # Adding the path flows
+            max_flow += path_flow
+            # Updating the residual values of edges
+            v = sink
+            while (v != source):
+                u = parent[v]
+                self.__node_conns[u][v].addCap(-1*path_flow)
+                try:
+                    self.__node_conns[v][u].addCap(path_flow)
+                except KeyError as ke:
+                    self.add_edge(v,u)
+                    self.__node_conns[v][u].addCap(path_flow)
+                v = parent[v]
+        return max_flow
 
 
 

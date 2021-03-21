@@ -2,11 +2,11 @@
 class Edge:
     index = 0
 
-    def __init__(self, graph, weight=1, name=None, direc=None):
+    def __init__(self, graph, weight=1, name=None, direc=None,capacidade=0,fluxo=0):
         self.owner = graph
         self.id = Edge.index
-        self.__capacidade = None
-        self.__fluxo = None
+        self.__capacidade = capacidade
+        self.__fluxo = fluxo
         Edge.index = Edge.index + 1
 
         if name:
@@ -28,8 +28,14 @@ class Edge:
         self.__capacidade = capacidade
         self.__fluxo = fluxo
 
-    def get_fluxo(self): return self.__fluxo
-    def get_capacidade(self):return self.__capacidade
+    def addCap(self,val):self.__capacidade+=val
+    def addFlux(self,val):self.__fluxo+=val
+
+    def setCap(self,val):self.__capacidade=val
+    def setFlux(self,val):self.__fluxo=val
+
+    def getFlux(self): return self.__fluxo
+    def getCap(self):return self.__capacidade
 
     def __repr__(self):
         return self.name
