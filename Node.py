@@ -1,7 +1,8 @@
 
 class Node:
     index=0
-    def __init__(self,graph,name=None):
+    def __init__(self,graph,name=None,position=()):
+        self.position=position
         self.owner=graph
         self.id=Node.index
         self.name=""

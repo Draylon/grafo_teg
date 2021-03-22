@@ -28,11 +28,19 @@ class Edge:
         self.__capacidade = capacidade
         self.__fluxo = fluxo
 
-    def addCap(self,val):self.__capacidade+=val
-    def addFlux(self,val):self.__fluxo+=val
+    def addCap(self,val):
+        self.__capacidade+=val
+        self.name = str(self.__capacidade) + "/" + str(self.__fluxo)
+    def addFlux(self,val):
+        self.__fluxo+=val
+        self.name = str(self.__capacidade) + "/" + str(self.__fluxo)
 
-    def setCap(self,val):self.__capacidade=val
-    def setFlux(self,val):self.__fluxo=val
+    def setCap(self,val):
+        self.__capacidade=val
+        self.name = str(self.__capacidade) + "/" + str(self.__fluxo)
+    def setFlux(self,val):
+        self.__fluxo=val
+        self.name = str(self.__capacidade) + "/" + str(self.__fluxo)
 
     def getFlux(self): return self.__fluxo
     def getCap(self):return self.__capacidade

@@ -2,8 +2,9 @@ from Node import Node
 from Edge import Edge
 from queue import MQueue
 import decimal
+from networkx_adapter import *
 
-
+INF = float("inf")
 # noinspection SpellCheckingInspection
 class Graph:
     def __init__(self, name=None, direcionado=False):
@@ -26,8 +27,8 @@ class Graph:
     def is_directed(self):
         return self.__direcionado
 
-    def add_node(self, name=None):  # add into graph
-        n = Node(self, name)
+    def add_node(self, name=None,position=()):  # add into graph
+        n = Node(self, name,position=position)
         self.__nodes.append(n)
         # print("adding",n.name,"to graph")
 
@@ -93,8 +94,17 @@ class Graph:
                 except KeyError as kr2:
                     return None
 
+    def get_nodes_from_edge(self,edge):
+        for from_,data_ in self.__node_conns.items():
+            for dest_,edge_ in data_.items():
+                if edge_ == edge:
+                    return from_,dest_
+        return None,None
+
     def get_connections(self, node):
         return self.__connections[node]
+
+    def get_node_connections(self):return self.__node_conns
 
     def __zero_matrix_at(self, index):
         ic = 0
@@ -231,12 +241,17 @@ class Graph:
 ========================================================
     '''
 
-    def __pathing_rec(self, current, arrival,allow_visited_edges=False, edge_list=[None],depth=0):
+    def __pathing_rec(self, current, arrival,allow_visited_edges=False,allow_visited_nodes=False,allow_return_edge=False, edge_list=[None],depth=0):
         for edge, dest_ in self.__connections[current].items():
+            if not allow_return_edge and edge.getFlux() < 0:
+                return
             if self.__visited_edge[edge] == True and not allow_visited_edges:
+                return
+            if self.__visited_node[current] == True and not allow_visited_nodes:
                 return
             edge_list[depth]=edge
             if not allow_visited_edges: self.__visited_edge[edge] = True
+            if not allow_visited_nodes: self.__visited_node[current] = True
             if dest_ == arrival:
                 #edge_list = edge_list[:-1]
                 #edge_list.append(dest_)
@@ -246,7 +261,7 @@ class Graph:
                 #break
             else:
                 edge_list.append(None)
-                self.__pathing_rec(dest_, arrival,allow_visited_edges,edge_list,depth+1)
+                self.__pathing_rec(dest_, arrival,allow_visited_edges,allow_visited_nodes,allow_return_edge,edge_list,depth+1)
 
     def max_weight(self, departure, arrival):
         if departure not in self.__nodes or arrival not in self.__nodes:
@@ -677,10 +692,15 @@ class Graph:
             return -1
         self.__pathing_list = []
         self.__clear_visited_edges()
-        self.__pathing_rec(departure, arrival,True)
+        self.__pathing_rec(departure, arrival,False,True)
         len_fluxos = len(self.__pathing_list)
-        edges_list = list(range(len_fluxos))
-        for path_i in range(len_fluxos): # iterando por todos os caminhos
+        edges_list = set()
+        for edge_l in self.__pathing_list:
+            for edge in edge_l:
+                if edge.getCap() == edge.getFlux():
+                    edges_list.add(edge)
+
+        '''for path_i in range(len_fluxos): # iterando por todos os caminhos
             s_flux=None
             for sel_edge in self.__pathing_list[path_i]: # iterando por
                 if modo == 0: # mínimo
@@ -689,16 +709,21 @@ class Graph:
                 elif modo == 1:
                     if s_flux == None or s_flux.get_capacidade() > sel_edge.get_capacidade():
                         s_flux = sel_edge
-            edges_list[path_i] = s_flux
+            edges_list[path_i] = s_flux'''
         del self.__pathing_list
         return edges_list
 
-    import decimal
+    """
+    ===============================
+    ===============================
+    ===============================
+    """
+
 
     def edmondsKarp(self,s, t):
         n = len(self.__edges)
         flow = 0
-        F = [[0 for y in range(n)] for x in range(n)]
+        iterb=0
         while True:
             P = [-1 for x in range(n)]
             P[s] = -2
@@ -706,33 +731,34 @@ class Graph:
             M[s] = decimal.Decimal('Infinity')
             BFSq = []
             BFSq.append(s)
-            pathFlow, P = self.BFSEK(s, t, F, P, M, BFSq)
+            pathFlow, P = self.BFSEK(s, t, P, M, BFSq)
             if pathFlow == 0:
                 break
             flow = flow + pathFlow
             v = t
             while v != s:
                 u = P[v]
-                F[u][v] = F[u][v] + pathFlow
-                F[v][u] = F[v][u] - pathFlow
-
-                self.__node_conns[u][v].setFlux(F[u][v])
+                self.__node_conns[u][v].addFlux(pathFlow)
+                #self.__node_conns[v][u].addFlux(-1*pathFlow)
                 try:
-                    self.__node_conns[v][u].setFlux(F[v][u])
+                    self.__node_conns[v][u].addFlux(-1*pathFlow)
                 except KeyError as ke:
-                    self.add_edge(v,u)
-                    self.__node_conns[v][u].setFlux(F[v][u])
-
+                    self.add_edge(v,u,capacidade=self.__node_conns[u][v].getCap())
+                    self.__node_conns[v][u].setFlux(-1*pathFlow)
                 v = u
+            iterb+=1
+            #nxg = create_networkx_graph(self)
+            #networkx_draw(nxg, self.get_node_connections())
+        print(iterb,"iterações")
         return flow
 
-    def BFSEK(self,s, t, F, P, M, BFSq):
+    def BFSEK(self,s, t, P, M, BFSq):
         while (len(BFSq) > 0):
             u = BFSq.pop(0)
             for v,e in self.__node_conns[u].items():
-                if e.getCap() - F[u][v] > 0 and P[v] == -1:
+                if e.getCap() - e.getFlux() > 0 and P[v] == -1:
                     P[v] = u
-                    M[v] = min(M[u], e.getCap() - F[u][v])
+                    M[v] = min(M[u], e.getCap() - e.getFlux())
                     if v != t:
                         BFSq.append(v)
                     else:
@@ -744,8 +770,7 @@ class Graph:
     ===================================
     ===================================
     """
-
-    # Using BFS as a searching algorithm
+    """
     def searching_algo_BFS(self, s, t, parent):
         visited = [False] * len(self.__nodes)
         queue = []
@@ -760,13 +785,12 @@ class Graph:
                     parent[desv] = u
         return True if visited[t] else False
 
-    # Applying fordfulkerson algorithm
     def ford_fulkerson(self, source, sink):
         parent = [-1] * len(self.__nodes)
         max_flow = 0
-
+        iterb=0
         while self.searching_algo_BFS(source, sink, parent):
-            path_flow = float("Inf")
+            path_flow = float("99")
             s = sink
             while (s != source):
                 path_flow = min(path_flow, self.__node_conns[self.get_node_from_index(parent[s])][s].getCap() )
@@ -778,14 +802,62 @@ class Graph:
             while (v != source):
                 u = parent[v]
                 self.__node_conns[u][v].addCap(-1*path_flow)
+                self.__node_conns[u][v].setFlux(-1*max_flow)
                 try:
                     self.__node_conns[v][u].addCap(path_flow)
+                    self.__node_conns[v][u].addFlux(path_flow)
                 except KeyError as ke:
                     self.add_edge(v,u)
-                    self.__node_conns[v][u].addCap(path_flow)
+                    self.__node_conns[v][u].setCap(path_flow)
+                    self.__node_conns[v][u].setFlux(path_flow)
                 v = parent[v]
+            iterb+=1
+        print(iterb,"iterações")
         return max_flow
+"""
 
+    # This is a sample depth first search to be used at max_flow
+    def depth_first_search(self,lvl,ptr,adj, vertex, sink, flow):
+        if vertex == sink or not flow:
+            return flow
+
+        for i in range(ptr[vertex], len(adj[vertex])):
+            e = adj[vertex][i]
+            if lvl[e[0]] == lvl[vertex] + 1:
+                p = self.depth_first_search(lvl[:],ptr[:],adj[:],e[0], sink, min(flow, e[2] - e[3]))
+                if p:
+                    adj[vertex][i][3] += p
+                    adj[e[0]][e[1]][3] -= p
+                    return p
+            ptr[vertex] = ptr[vertex] + 1
+        return 0
+
+    def dinitz(self, source, sink):
+        n = len(self.__nodes)
+        lvl = [0] * n
+        ptr = [0] * n
+        q = [0] * n
+        adj = [[] for _ in range(n)]
+        flow, q[0] = 0, source
+        for l in range(31):
+            while True:
+                lvl, ptr = [0] * len(q), [0] * len(q)
+                qi, qe, lvl[source] = 0, 1, 1
+                while qi < qe and not lvl[sink]:
+                    v = q[qi]
+                    qi += 1
+                    for e in adj[v]:
+                        if not lvl[e[0]] and (e[2] - e[3]) >> (30 - l):
+                            q[qe] = e[0]
+                            qe += 1
+                            lvl[e[0]] = lvl[v] + 1
+                p = self.depth_first_search(lvl,ptr,adj,source, sink, INF)
+                while p:
+                    flow += p
+                    p = self.depth_first_search(lvl,ptr,adj,source, sink, INF)
+                if not lvl[sink]:
+                    break
+        return flow
 
 
     '''def most_connected(self):

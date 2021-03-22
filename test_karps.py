@@ -38,25 +38,18 @@ grafo.add_edge(v2, t,'5/1',5,0)
 grafo.add_edge(v3, t,'4/3',4,0)
 grafo.add_edge(v5, t,'12/11',12,0)
 
-#=============
 
-
-'''lst = grafo.dfs(s)
+lst = grafo.dfs(s)
 for node,index in lst.items():
     print(node," tem profundidade ",index)
 
 lst2 = grafo.dfs_paths(s,t)
-'''
-
-#nxg = create_networkx_graph(grafo)
-#networkx_draw(nxg,grafo.get_node_connections())
 
 print("Edmonds Karp",grafo.edmondsKarp(s,t))
-#print("Dinitz",grafo.dinitz(s,t))
-print("CORTE",grafo.corte(s,t,1))
 
-#grafo.print_matriz('capacidade')
-#grafo.print_matriz('fluxo')
 
-#nxg = create_networkx_graph(grafo)
-#networkx_draw(nxg,grafo.get_node_connections())
+grafo.print_matriz('capacidade')
+grafo.print_matriz('fluxo')
+
+nxg = create_networkx_graph(grafo)
+networkx_draw(nxg,grafo.get_node_connections())
