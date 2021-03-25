@@ -150,12 +150,12 @@ class Graph:
 ========================================================
     '''
 
-    def add_edge(self, node1, node2, name=None,capacidade=0,fluxo=0):
+    def add_edge(self, node1, node2, name=None,capacidade=0,fluxo=0,parallel=False):
         if node1 not in self.__nodes or node2 not in self.__nodes:
             return None
         l1 = self.__nodes.index(node1)
         l2 = self.__nodes.index(node2)
-        e = Edge(self, 1, name, self.__direcionado,capacidade,fluxo)
+        e = Edge(self, 1, name, self.__direcionado,capacidade,fluxo,parallel)
         self.__update_to_matrix(l1, l2, 1)
 
         self.__connections[node1][e] = node2
@@ -241,14 +241,14 @@ class Graph:
 ========================================================
     '''
 
-    def __pathing_rec(self, current, arrival,allow_visited_edges=False,allow_visited_nodes=False,allow_return_edge=False, edge_list=[None],depth=0):
+    def __pathing_rec(self, current, arrival,last=None,allow_visited_edges=False,allow_visited_nodes=False,allow_return_edge=False, edge_list=[None],depth=0):
+        if self.__visited_node[current] == True and not allow_visited_nodes:
+            return
         for edge, dest_ in self.__connections[current].items():
-            if not allow_return_edge and edge.getFlux() < 0:
-                return
+            if not allow_return_edge and edge.parallel==True:
+                continue
             if self.__visited_edge[edge] == True and not allow_visited_edges:
-                return
-            if self.__visited_node[current] == True and not allow_visited_nodes:
-                return
+                continue
             edge_list[depth]=edge
             if not allow_visited_edges: self.__visited_edge[edge] = True
             if not allow_visited_nodes: self.__visited_node[current] = True
@@ -261,7 +261,7 @@ class Graph:
                 #break
             else:
                 edge_list.append(None)
-                self.__pathing_rec(dest_, arrival,allow_visited_edges,allow_visited_nodes,allow_return_edge,edge_list,depth+1)
+                self.__pathing_rec(dest_, arrival,current,allow_visited_edges,allow_visited_nodes,allow_return_edge,edge_list,depth+1)
 
     def max_weight(self, departure, arrival):
         if departure not in self.__nodes or arrival not in self.__nodes:
@@ -692,13 +692,15 @@ class Graph:
             return -1
         self.__pathing_list = []
         self.__clear_visited_edges()
-        self.__pathing_rec(departure, arrival,False,True)
+        self.__pathing_rec(departure, arrival,None,True,True)
         len_fluxos = len(self.__pathing_list)
         edges_list = set()
         for edge_l in self.__pathing_list:
-            for edge in edge_l:
+            print(edge_l)
+            for edge in reversed(edge_l):
                 if edge.getCap() == edge.getFlux():
                     edges_list.add(edge)
+                    break
 
         '''for path_i in range(len_fluxos): # iterando por todos os caminhos
             s_flux=None
@@ -737,14 +739,18 @@ class Graph:
             flow = flow + pathFlow
             v = t
             while v != s:
+                '''nxg = create_networkx_graph(self)
+                networkx_draw(nxg, self.get_node_connections())'''
                 u = P[v]
                 self.__node_conns[u][v].addFlux(pathFlow)
                 #self.__node_conns[v][u].addFlux(-1*pathFlow)
                 try:
-                    self.__node_conns[v][u].addFlux(-1*pathFlow)
+                    #self.__node_conns[v][u].addFlux(-1*pathFlow)
+                    self.__node_conns[v][u].setFlux(self.__node_conns[u][v].getCap()-self.__node_conns[u][v].getFlux())
                 except KeyError as ke:
-                    self.add_edge(v,u,capacidade=self.__node_conns[u][v].getCap())
-                    self.__node_conns[v][u].setFlux(-1*pathFlow)
+                    self.add_edge(v,u,capacidade=self.__node_conns[u][v].getCap(),parallel=True)
+                    #self.__node_conns[v][u].setFlux(-1*pathFlow)
+                    self.__node_conns[v][u].setFlux(self.__node_conns[u][v].getCap()-self.__node_conns[u][v].getFlux())
                 v = u
             iterb+=1
             #nxg = create_networkx_graph(self)

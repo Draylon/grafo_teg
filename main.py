@@ -58,5 +58,5 @@ print("CORTE",grafo.corte(s,t,1))
 #grafo.print_matriz('capacidade')
 #grafo.print_matriz('fluxo')
 
-#nxg = create_networkx_graph(grafo)
-#networkx_draw(nxg,grafo.get_node_connections())
+nxg = create_networkx_graph(grafo)
+networkx_draw(nxg,grafo.get_node_connections())
