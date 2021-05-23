@@ -96,6 +96,8 @@ class Graph:
 
     def get_edges(self): return self.__edges
 
+    def get_graph_order(self): return len(self.__nodes)
+
     def get_edge(self, node1, node2):
         if self.__direcionado is True:
             try:
