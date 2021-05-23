@@ -1,6 +1,6 @@
 from Node import Node
 from Edge import Edge
-from queue import MQueue
+from Queue import MQueue
 import decimal
 from networkx_adapter import *
 
