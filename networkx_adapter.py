@@ -10,6 +10,7 @@ def create_networkx_graph(grafo):
         g = nx.DiGraph()
     else:
         g = nx.Graph()
+    g.name =grafo.name
     for node in grafo.get_nodes():
         g.add_node(node)
     for from_ in grafo.get_nodes():
@@ -21,7 +22,7 @@ def create_networkx_graph(grafo):
 
     #H = nx.relabel_nodes(g, grafo.get_node_dictionary())
 
-def networkx_draw(nx_grafo,edge_list):
+def networkx_draw(nx_grafo,edge_list,custom_pos={},no_edge_label=False):
     #top = nx.bipartite.sets(nx_grafo)[0]
     #pos = nx.bipartite_layout(nx_grafo, top)
     #nx.draw(nx_grafo, with_labels=True)
@@ -35,17 +36,21 @@ def networkx_draw(nx_grafo,edge_list):
         edg_labels[nge] = edge_list[nge[0]][nge[1]].name
 
     #pos = nx.spring_layout(G,15)
-    pos1 = {0: (0, 1), 1: (1, 1), 2: (2,0), 3: (2, 2),4:(3,1),5:(4,1),6:(5,1)}
     pos = {}
-    for np,nd in enumerate(nx_grafo.nodes):
-        pos[nd] = pos1[np]
-    #pos = nx.spiral_layout(G)
+    if len(custom_pos) > 0:
+        for np,nd in enumerate(nx_grafo.nodes):
+            pos[nd] = custom_pos[np]
+    else:
+        pos = nx.spring_layout(nx_grafo)
+        
     plt.figure()
+    plt.title(nx_grafo.name)
     nx.draw(nx_grafo, pos, edge_color='black', width=1, linewidths=1,
             node_size=500, node_color='gray', alpha=0.9,
             labels={node: node for node in nx_grafo.nodes()},connectionstyle='arc3, rad = 0.1')
     #nx.draw_networkx_edge_labels(G, pos, edge_labels={('A', 'B'): 'AB',('B', 'C'): 'BC', ('B', 'D'): 'BD'}, font_color='red')
-    nx.draw_networkx_edge_labels(nx_grafo, pos, edge_labels=edg_labels, font_color='red',label_pos=0.3)
+    if not no_edge_label:
+        nx.draw_networkx_edge_labels(nx_grafo, pos, edge_labels=edg_labels, font_color='red',label_pos=0.3)
     #nx.draw(G,pos,connectionstyle='arc3, rad = 0.1',with_labels=True)
     plt.axis('off')
 
