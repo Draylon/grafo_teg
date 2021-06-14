@@ -9,6 +9,10 @@ class MQueue:
         return self.list.pop_front()
     def has(self,data):
         return self.list.find(data)
+    def not_empty(self):
+        if self.list.head != None:
+            return True
+        return False
 
 
 class NodeLL:

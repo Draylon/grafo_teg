@@ -46,6 +46,7 @@ class Edge:
 
     def getFlux(self): return self.__fluxo
     def getCap(self):return self.__capacidade
+    def capacidade(self):return self.__capacidade
 
     def setName(self):
         self.name = str(self.__capacidade) + "/" + str(self.__fluxo)
@@ -53,3 +54,12 @@ class Edge:
 
     def __repr__(self):
         return self.name
+
+    def __eq__(self, value):
+        if type(value) == Edge:
+            if self.name == value.name and self.weight == value.weight:
+                return True
+        return False
+
+    def __hash__(self):
+        return self.id

@@ -1,6 +1,12 @@
 from Graph import Graph
 from networkx_adapter import *
 
+"""
+
+MAPA DO BAIRRO BUCAREIN
+
+"""
+
 grafo = Graph("Bairro Bucarein",True) # Direcionado 
 #pos = {0: (0, 1), 1: (1, 1), 2: (2,0), 3: (2, 2),4:(3,1),5:(4,1),6:(5,1)}
 
@@ -105,6 +111,10 @@ grafo.add_edge(cl[20],cl[26],capacidade=179)
 
 grafo.add_edge(cl[21],cl[37],capacidade=213)
 grafo.add_edge(cl[27],cl[21],capacidade=175)
+
+# Diagonal
+
+grafo.add_edge(cl[7],cl[37],capacidade=302)
 
 #  ┌──────────────────────┐
 #  │ Grau dos cruzamentos │

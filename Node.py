@@ -25,6 +25,16 @@ class Node:
 
     def __repr__(self):
         return self.name
+
+    def __eq__(self, value):
+        if type(value) != Node:
+            return False
+        if self.name == value.name:
+            return True
+        return False
+    
+    def __hash__(self):
+        return self.id
 '''
 class Vertice:
     index=0
