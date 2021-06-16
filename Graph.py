@@ -1,6 +1,7 @@
 from Node import Node
 from Edge import Edge
 from Queue import MQueue
+from Stack import MStack
 import decimal
 
 INF = float("inf")
@@ -16,10 +17,10 @@ class Graph:
         self.__edges = {}
         if createList == True: # criar elementos de lista
             self.__connections = {} # { Node: { Edge: Node } }
-            self.__node_conns = {} # { Node: { Node: Edge } }
+            self.__node_conns = {} # { Node: { Node: Edge } } conexões listadas por pares de nodes
             self.__visited_node = {} # { Node: Bool }
             self.__visited_edge = {} # { Edge: Bool }
-            self.__node_name = {} # { String: Node }
+            self.__node_name = {} # { String: Node } relacionar node ao nome
         self.__edge_count=0 # contador de arestas
         self.__node_count=0 # contador de nó
 
@@ -531,15 +532,17 @@ class Graph:
         })
         """
         self.__clear_visited_nodes()
+        self.__visited_node[start] = True
         queue = MQueue()
         queue.push(start)
+
         while queue.not_empty():
             node = queue.pop()
-            if self.__visited_node[node] == False:
-                self.__visited_node[node] = True
-                for _,dest in self.__connections[node].items(): # lista de adjacências
+            for _,dest in self.__connections[node].items(): # lista de adjacências
+                if self.__visited_node[dest] == False:
+                    self.__visited_node[dest] = True
                     queue.push(dest)
-                print("node",node)
+            print("node",node)
 
     # sub grafos
     def sub_grafos(self):
@@ -783,6 +786,7 @@ class Graph:
         print(self.__cycle_node_data)
         print(self.__parentnode_data)
         print(self.__level_node_data)
+        print("\n")
         self.__cycle_rec(node)
         
 
@@ -958,12 +962,25 @@ class Graph:
         self.__dfs_rec(init)
         return self.__visited_node.copy()
 
-    def dfs_print(self,pathing_list):
+    def dfs_print(self,start=None):
+        if start == None:
+            start = self.__nodes[0]
+        self.__clear_visited_nodes()
+        stack = MStack()
+        stack.push(start)
+        while stack.not_empty():
+            node = stack.pop()
+            self.__visited_node[node] = True
+            for _,dest in self.__connections[node].items(): # lista de adjacências
+                if self.__visited_node[node] == False:
+                    stack.push(dest)
+            print("node",node)
+    """def dfs_print(self,pathing_list):
         for index, path in enumerate(pathing_list):
             print("Caminho", index)
             for node in path:
                 print(node, end=" - ")
-            print("")
+            print("")"""
 
     def dfs_paths(self,departure,arrival):
         if departure not in self.__nodes or arrival not in self.__nodes:

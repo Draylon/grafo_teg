@@ -1,6 +1,22 @@
 
-
 class MQueue:
+  "A container with a last-in-first-out (LIFO) queuing policy."
+  def __init__(self):
+    self.list = []
+
+  def push(self,item):
+    self.list.insert(0,item)
+
+  def pop(self):
+    return self.list.pop()
+
+  def not_empty(self):
+    return len(self.list) != 0
+
+  def has(self,data):
+      return self.list.index(data)
+
+"""class MQueue:
     def __init__(self):
         self.list = DLinkedList()
     def push(self,data):
@@ -84,4 +100,4 @@ if __name__ == "__main__":
     llist.push_back("Thu")
     print(llist.pop_front())
     print(llist.pop_back())
-    llist.LListprint()
+    llist.LListprint()"""

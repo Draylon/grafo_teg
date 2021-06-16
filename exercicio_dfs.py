@@ -22,5 +22,4 @@ grafo.add_edge(cl[5],cl[6])
 grafo.add_edge(cl[6],cl[8])
 grafo.add_edge(cl[7],cl[8])
 
-print(grafo.dfs(cl[0]))
-#grafo.dfs_print()
+print(grafo.dfs_print(cl[0]))
