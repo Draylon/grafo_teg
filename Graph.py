@@ -319,7 +319,7 @@ class Graph:
             return True
         return False
 
-    def completo(self):
+    def completo2(self):
         for data in self.__connections.values():
             if data == {}:
                 return False
@@ -391,19 +391,20 @@ class Graph:
                 return False
         return True
 
+    def completo(self):
+        v = self.__node_count
+        if self.__edge_count == (v*(v-1)) / 2:
+            return True
+        return False
 
-    def planar(self,list_grau_conexoes):
-        try:
+
+    def planar(self,list_grau_conexoes=dict()):
+        if list_grau_conexoes.get((4,4),None) != None:
             if list_grau_conexoes[(4, 4)] >= 20: # Tem um k5
                 return False
-        except Exception as _:
-            pass
-
-        try:
+        if list_grau_conexoes.get((3,3),None) != None:
             if list_grau_conexoes[(3,3)] >= 18: # Tem um k3,3
                 return False
-        except Exception as _:
-            pass
         return True
 
     
@@ -590,6 +591,26 @@ class Graph:
             return False
 
 
+    def __common_parents_rec(self,parent, child,node):
+        if self.__node_conns[parent].get(child,None)!=None:
+            self.__common_parents[node].add(parent)
+            for p in self.__connections.keys():
+                self.__common_parents_rec(p, parent,node)
+
+    def find_common_parents(self,node1,node2):
+        self.__common_parents = {node1: set(), node2: set()}
+        for p in self.__connections.keys(): # Conexões do node com outros nodes
+            self.__common_parents_rec(p, node1,node1)
+            self.__common_parents_rec(p, node2,node2)
+        set1 = self.__common_parents[node1].intersection(self.__common_parents[node2])
+        del self.__common_parents
+        return set1
+    
+    def has_common_parents(self,node1,node2):
+        if self.find_common_parents(node1,node2):
+            return True
+        else:
+            return False
 
     # Algoritmo Cíclos "Funcionando"
 
