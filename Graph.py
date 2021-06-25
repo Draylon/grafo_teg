@@ -251,10 +251,10 @@ class Graph:
             return e
         else: return [e,self.add_edge(node2,node1,name,capacidade,fluxo,False)]
 
-    def __add_edge_man(self, node1, node2, xi, yi, name=None):
+    def __add_edge_man(self, node1, node2, xi, yi, name=None,weight=1):
         if name==None:
             name = node1.name+"_"+node2.name
-        e = Edge(self, 1, name, self.__direcionado)
+        e = Edge(self, weight, name, self.__direcionado)
         self.__connections[node1][e] = node2
         self.__node_conns[node1][node2] = e
         self.__edges[e] = node1
@@ -1145,7 +1145,7 @@ def complemento(grafo):
         for yi in range(lenp):
             if xi != yi:
                 for am in range(grp.matrix[xi][yi]):
-                    grp.__add_edge_man(grp.__nodes[xi], grp.__nodes[yi], xi, yi)
+                    grp.__add_edge_man(grp.__nodes[xi], grp.__nodes[yi], xi, yi,am)
         lenp += 1
     return grp
 
