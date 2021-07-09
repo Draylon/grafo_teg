@@ -2,6 +2,7 @@ from Node import Node
 from Edge import Edge
 from Queue import MQueue
 from Stack import MStack
+from UniqueTuple import UniqueTuple
 import decimal
 
 INF = float("inf")
@@ -85,6 +86,7 @@ class Graph:
             self.__visited_node.pop(node)
             self.__connections.pop(node)
             self.__node_conns.pop(node)
+            self.__node_count-=1
 
         except Exception as _:
             pass
@@ -220,7 +222,7 @@ class Graph:
 
         self.__connections[node1][e] = node2
         self.__node_conns[node1][node2]=e
-        self.__edges[e] = node1
+        self.__edges[e] = UniqueTuple(node1,node2)
         if self.__direcionado == False and node1 != node2:
             self.__connections[node2][e] = node1
             self.__node_conns[node2][node1]=e
@@ -232,7 +234,7 @@ class Graph:
         nodes = self.get_nodes_from_edge(edge)
         self.__edge_op(nodes[0],nodes[1],self.__nodes.index(nodes[0]),self.__nodes.index(nodes[1]),edge)
 
-    def add_edge(self, node1, node2, name=None,capacidade=0,fluxo=0,add_parallel=False):
+    def add_edge(self, node1, node2,weight=1, name=None,capacidade=0,fluxo=0,add_parallel=False):
         if node1 not in self.__nodes or node2 not in self.__nodes:
             return None
         l1 = self.__nodes.index(node1)
@@ -242,9 +244,9 @@ class Graph:
             name = node1.name+"_"+node2.name
         
         if self.get_edge(node2,node1) is not None:
-            e = Edge(self, 1, name, self.__direcionado,capacidade,fluxo,True)
+            e = Edge(self,weight, name, self.__direcionado,capacidade,fluxo,True)
         else:
-            e = Edge(self, 1, name, self.__direcionado,capacidade,fluxo,False)
+            e = Edge(self, weight, name, self.__direcionado,capacidade,fluxo,False)
         
         self.__edge_op(node1,node2,l1,l2,e)
         if not add_parallel:
@@ -257,7 +259,7 @@ class Graph:
         e = Edge(self, weight, name, self.__direcionado)
         self.__connections[node1][e] = node2
         self.__node_conns[node1][node2] = e
-        self.__edges[e] = node1
+        self.__edges[e] = UniqueTuple(node1,node2)
         if self.__direcionado == False and xi != yi:
             self.__connections[node2][e] = node1
             self.__node_conns[node2][node1] = e
@@ -282,6 +284,18 @@ class Graph:
     def __clear_visited_nodes(self):
         for n in self.__visited_node.keys():
             self.__visited_node[n] = False
+
+    def __get_visited_nodes(self,visited=False):
+        ret = {}
+        for i,j in self.__visited_node.items():
+            if j == visited: ret[i] = j
+        return ret
+    
+    def __get_visited_nodes_count(self,visited=False):
+        ret = 0
+        for j in self.__visited_node.values():
+            if j == visited: ret+=1
+        return ret
 
     def __clear_visited_edges(self):
         for e in self.__visited_edge.keys():
@@ -1128,6 +1142,84 @@ class Graph:
                     lista[(graunode,graudest)]=1
         return lista
 
+    #====== BUSCAS ============
+    def __dijkstra_menor_v(self):
+        menor_i = None
+        menor_j = INF
+        for i,j in self.__dij_d.items():
+            #print("olhando",i,j,"com",menor_i,menor_j)
+            if (menor_j > j) and self.__visited_node[i] == False:
+                #print(i,j,"menor q ",menor_i,menor_j)
+                menor_i = i
+                menor_j = j
+        #print("agora",menor_i,menor_j)
+        return menor_i
+
+    def dijkstra(self,s):
+        self.__clear_visited_nodes()
+        self.__dij_d = {}
+        self.__dij_p = {}
+        for v in self.__nodes:
+            self.__dij_d[v] = INF
+            self.__dij_p[v] = -1
+        self.__dij_d[s]= 0
+        
+        while self.__get_visited_nodes_count(True) != len(self.__nodes):
+            u = self.__dijkstra_menor_v()
+            #print("menor: ",u)
+            if u != None:
+                self.__visited_node[u]=True
+                for edge,dest in self.__connections[u].items():
+                    if self.__visited_node[dest] == False:
+                        #print("olhando",dest)
+                        #print(self.__dij_d[u],"+",edge.weight,"<",self.__dij_d[dest])
+                        if (self.__dij_d[u] + edge.weight) < self.__dij_d[dest]:
+                            #print("sim")
+                            self.__dij_d[dest]=(self.__dij_d[u] + edge.weight)
+                            self.__dij_p[dest] = u
+            ret = [self.__dij_d,self.__dij_d]
+            del self.__dij_d
+            del self.__dij_p
+            return ret
+
+    #================
+
+    def bellman_ford(self,s):
+        d = {}
+        for v in self.__nodes:
+            d[v] = INF
+        d[s] = 0
+        #print(d)
+        #for ii in range(self.__node_count-2):
+        for edge,t in self.__edges.items():
+            if d[t.u] != INF and d[t.u] + edge.weight < d[t.v]:
+                d[t.v] = min(d[t.u] + edge.weight,d[t.v])
+                #d[t.v] = d[t.u] + edge.weight
+                #print(d[t.v])
+        #print(d)
+        return d
+    
+    def bellman_ford_destino(self,s,t):
+        M = [ [INF for _ in range(self.__node_count)] for _ in range(self.__node_count)]#matriz NxN
+        s = self.get_index_from_node(s)
+        t = self.get_index_from_node(t)
+        M[0][t]= 0
+        for i in range(1,self.__node_count):
+            for vn in self.__nodes:
+                v = self.get_index_from_node(vn)
+                minw=INF
+                for wn,e in self.__node_conns[vn].items():
+                    w = self.get_index_from_node(wn)
+                    if minw > M[i-1][w]+e.weight:
+                        minw = M[i-1][w]+e.weight
+
+                if i>0:
+                    M[i][v]=min(M[i-1][v],minw)
+        return M[self.__node_count - 1][s]
+
+                
+        
+        
 
 def complemento(grafo):
     """Inverter as ocorrências de arestas do grafo"""
