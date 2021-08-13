@@ -21,7 +21,6 @@ grafo.add_edge(cl[2],cl[5])
 """
 
 #k3,3
-
 """grafo.add_edge(cl[0],cl[1])
 grafo.add_edge(cl[0],cl[3])
 grafo.add_edge(cl[0],cl[5])
@@ -50,6 +49,8 @@ grafo.add_edge(cl[2],cl[4])
 
 grafo.add_edge(cl[3],cl[4])"""
 
+
+#random
 grafo.add_edge(cl[0],cl[1])
 grafo.add_edge(cl[0],cl[3])
 grafo.add_edge(cl[0],cl[4])
@@ -74,11 +75,12 @@ grafo.add_edge(cl[0],cl[2])
 grafo.add_edge(cl[1],cl[2])"""
 
 #grafo.bfs_print(cl[0])
-#print("coloracao:",grafo.coloracao())
-#print("bipartido:",grafo.bipartido2())
-#print("Planar: ",grafo.planar())
-#print("Ciclos")
-grafo.ciclos()
+print("coloracao:",grafo.coloracao())
+print("bipartido:",grafo.bipartido2())
+print("Planar: ",grafo.planar())
+print("Ciclos")
+asd = grafo.ciclos()
+print(asd)
 #print(isomorfo(grafo,grafo))
 """
 {

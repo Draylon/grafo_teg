@@ -4,6 +4,8 @@ from Queue import MQueue
 from Stack import MStack
 from UniqueTuple import UniqueTuple
 import decimal
+from itertools import combinations
+import sys
 
 INF = float("inf")
 # noinspection SpellCheckingInspection
@@ -271,7 +273,7 @@ class Graph:
         try:
             if self.__edges == {} or self.__nodes == []:
                 return
-            from_ = self.__edges[edge]
+            from_ = self.__edges[edge].u
             to_ = self.__connections[from_][edge]
             self.__connections[from_].pop(edge)
             self.__connections[to_].pop(edge)
@@ -322,6 +324,23 @@ class Graph:
                     
         return nodes
 
+    def __next_edge(self,node=None,visit_mode=0,valid_visited=False,visit_data=True):
+        """
+        Visit mode: 0 = node
+                    1 = edge
+        """
+        if visit_mode == 0:
+            for _,dest in self.__connections[node].items():
+                if self.__visited_node[dest] == valid_visited:
+                    self.__visited_node[dest] = visit_data
+                    return dest
+        elif visit_mode == 1:
+            for edge,dest in self.__connections[node].items():
+                if self.__visited_edge[edge] == valid_visited:
+                    self.__visited_edge[edge] = visit_data
+                    return dest
+        return None
+
     #====================================
     
     #===========   FUNCOES   ============
@@ -339,12 +358,17 @@ class Graph:
                 return False
         return True
 
-    def grau_vertice(self, index):
+    def grau_vertice(self, index,entrada=True,saida=False):
         if type(index) != int:
             index = self.get_index_from_node(index)
         grau = 0
-        for xi, x in enumerate(self.matrix[index]):
-            grau += 2 * x if xi == index else x
+        if entrada:
+            for xi, x in enumerate(self.matrix[index]):
+                grau += 2*x if xi == index else x
+        if saida:
+            for xi, x in enumerate(self.matrix):
+                grau += 2*x[index] if xi == index else x[index]
+        #print("grau de",index,grau)
         return grau
 
     def coloracao(self):
@@ -568,9 +592,11 @@ class Graph:
                 self.__sub_grafos_rec(nc, node)
                 nc += 1
                 self.__sub_grafl.append([])
-        self.__sub_grafl.pop()
         self.__clear_visited_nodes()
-        return self.__sub_grafl.copy()
+        self.__sub_grafl.pop()
+        ret = self.__sub_grafl.copy()
+        del self.__sub_grafl
+        return ret
 
     def __sub_grafos_rec(self, curr, node):
         if self.__visited_node[node] == False:
@@ -597,9 +623,9 @@ class Graph:
 
 
     # arvores
-    def arvore(self, lista_ciclos):
+    def arvore(self, lista_ciclos,sub_grafos):
         """Define se o gráfo é do tipo árvore"""
-        if (not ciclico(lista_ciclos) and self.conexo()[0] == True):
+        if (not ciclico(lista_ciclos) and self.conexo(sub_grafos)[0] == True):
             return True
         else:
             return False
@@ -625,6 +651,59 @@ class Graph:
             return True
         else:
             return False
+
+
+    def verifica_euleriano(self,sub_grafos):
+        if self.conexo(sub_grafos)[0] == False:
+            return False
+        impares=0
+        for v in self.__nodes:
+            if self.grau_vertice(v,saida=True) % 2 != 0:
+                impares+=1
+        print(impares)
+        if impares==0:
+            print("Ciclo Euleriano")
+        if impares == 2:
+            print("Caminho Euleriano")
+        if impares > 2:
+            print("Não é Euleriano")
+
+    # def hierholzer_ fazer versão em pilha
+
+    def __hhzer_rec(self,v):
+        while True:
+            next_ = self.__next_edge(v,1,False,True)
+            if next_ == None:
+                self.__hh_stack.append(v)
+                break
+            self.__hhzer_rec(next_)
+        
+
+    def hierholzer(self,v=None):
+        self.__clear_visited_edges()
+        if v == None: v = self.__nodes[0]
+        self.__hh_stack = []
+        self.__hhzer_rec(v)
+        stack = self.__hh_stack
+        del self.__hh_stack
+        stack.reverse()
+        return stack
+
+    def hierholzer2(self,v=None):
+        self.__clear_visited_edges()
+        caminho = [v if v != None else self.__nodes[0]]
+        stack = []
+        while caminho:
+            v = caminho[-1]
+            next_ = self.__next_edge(v,1,False,True)
+            if next_ == None:
+                stack.append(caminho.pop())
+            else:
+                caminho.append(next_)
+        stack.reverse()
+        return stack
+    
+
 
     # Algoritmo Cíclos "Funcionando"
 
@@ -799,154 +878,167 @@ class Graph:
         except Exception as _:
             pass
 
-        
+    
         
     def ciclos(self):
-        self.__clear_visited_nodes()
-        node_queue = MQueue()
-        self.__cycle_list = set()
-        self.__cycle_node_data = {}
-        self.__parentnode_data = {}
-        self.__level_node_data = {}
-        node = self.__nodes[0]
-        if len(self.__nodes) > 0:
-            node_queue.push(node)
-            self.__cycle_node_data[node] = [0,set()]
-            self.__level_node_data[0] = set([node])
-            self.__visited_node[node] = True
-            self.__cycle_node_data[node] = [0,{None}]
-            
-        self.__ciclos_bfs(node_queue)
-        print("Done tree")
-        print(self.__cycle_node_data)
-        print(self.__parentnode_data)
-        print(self.__level_node_data)
-        print("\n")
-        self.__cycle_rec(node)
-        
-
-        """for level,nodes in level_node_data.items():
-            repeat_list = {}
-            for node1 in nodes:
+        if self.__direcionado == True:
+            print("Grafo direcionado!")
+            return
+        else:
+            self.__clear_visited_nodes()
+            node_queue = MQueue()
+            self.__cycle_list = set()
+            self.__cycle_node_data = {}
+            self.__parentnode_data = {}
+            self.__level_node_data = {}
+            node = self.__nodes[2]
+            if len(self.__nodes) > 0:
+                node_queue.push(node)
+                self.__cycle_node_data[node] = [0,set()]
+                self.__level_node_data[0] = set([node])
+                self.__visited_node[node] = True
+                self.__cycle_node_data[node] = [0,{None}]
                 
-                #Procurar no mesmo nível
-                #Procurar No nivel anterior, não no mesmo pai
-                level_b = level
-                print("node",node1,"level",level)
-                while level_b >= 0:
-                    for node2 in level_node_data[level_b]:
-                        try:
-                            if repeat_list[self.__node_conns[node1][node2]] == True:
-                                print("Already done",node1,node2)
-                                pass
-                        except Exception as _:
-                            #print(e)
-                            try:
-                                if self.__node_conns[node1][node2] and node1 != node2 and not parentnode_data[node2].__contains__(node1):
-                                    repeat_list[self.__node_conns[node1][node2]] = True
-                                    print(node1,"is connected to",node2)
-                                    
-                                    common_parents = cycle_node_data[node1][1].intersection(cycle_node_data[node2][1])
-                                    if len(common_parents) > 0:
-                                        if len(common_parents) > 0:
-                                            common_parents.add(node1)
-                                            common_parents.add(node2)
-                                            print("cycle",common_parents)
-                                            cycle_list.add(frozenset(common_parents))
+            self.__ciclos_bfs(node_queue)
+            #print("Done tree")
+            #print(self.__cycle_node_data)
+            #print(self.__parentnode_data)
+            #print(self.__level_node_data)
+            #print("\n")
+            self.__cycle_rec(node)
+            
 
-                                    else:
-                                        cycle_=False
-                                        for n1p in cycle_node_data[node1][1]:
-                                            try:
-                                                if self.__node_conns[n1p][node2]:
-                                                    cycle_list.add({n1p,node2,node1})
-                                                    cycle_=True
-                                                    break
-                                            except Exception as _:
-                                                pass
-                                        if not cycle_:
-                                            for n2p in cycle_node_data[node2][1]:
+            """for level,nodes in level_node_data.items():
+                repeat_list = {}
+                for node1 in nodes:
+                    
+                    #Procurar no mesmo nível
+                    #Procurar No nivel anterior, não no mesmo pai
+                    level_b = level
+                    print("node",node1,"level",level)
+                    while level_b >= 0:
+                        for node2 in level_node_data[level_b]:
+                            try:
+                                if repeat_list[self.__node_conns[node1][node2]] == True:
+                                    print("Already done",node1,node2)
+                                    pass
+                            except Exception as _:
+                                #print(e)
+                                try:
+                                    if self.__node_conns[node1][node2] and node1 != node2 and not parentnode_data[node2].__contains__(node1):
+                                        repeat_list[self.__node_conns[node1][node2]] = True
+                                        print(node1,"is connected to",node2)
+                                        
+                                        common_parents = cycle_node_data[node1][1].intersection(cycle_node_data[node2][1])
+                                        if len(common_parents) > 0:
+                                            if len(common_parents) > 0:
+                                                common_parents.add(node1)
+                                                common_parents.add(node2)
+                                                print("cycle",common_parents)
+                                                cycle_list.add(frozenset(common_parents))
+
+                                        else:
+                                            cycle_=False
+                                            for n1p in cycle_node_data[node1][1]:
                                                 try:
-                                                    if self.__node_conns[n2p][node1]:
-                                                        cycle_list.add({n2p,node2,node1})
+                                                    if self.__node_conns[n1p][node2]:
+                                                        cycle_list.add({n1p,node2,node1})
                                                         cycle_=True
                                                         break
                                                 except Exception as _:
                                                     pass
-                                        if not cycle_:
-                                            breaker=False
-                                            add_list=set()
-                                            n1pl = cycle_node_data[node1][1]
-                                            n2pl = cycle_node_data[node2][1]
-                                            while not breaker:
-                                                l1m,l2m=set(),set()
-                                                for n1p in n1pl:
-                                                    if n1p==None:
-                                                        breaker=True
-                                                        continue
-                                                    l1m.update(cycle_node_data[n1p][1])
-                                                    for n2p in n2pl:
-                                                        if n2p==None:
+                                            if not cycle_:
+                                                for n2p in cycle_node_data[node2][1]:
+                                                    try:
+                                                        if self.__node_conns[n2p][node1]:
+                                                            cycle_list.add({n2p,node2,node1})
+                                                            cycle_=True
+                                                            break
+                                                    except Exception as _:
+                                                        pass
+                                            if not cycle_:
+                                                breaker=False
+                                                add_list=set()
+                                                n1pl = cycle_node_data[node1][1]
+                                                n2pl = cycle_node_data[node2][1]
+                                                while not breaker:
+                                                    l1m,l2m=set(),set()
+                                                    for n1p in n1pl:
+                                                        if n1p==None:
                                                             breaker=True
                                                             continue
-                                                        l2m.update(cycle_node_data[n2p][1])
-                                                        try:
-                                                            if n1p == n2p:
-                                                                add_list.add(node1)
-                                                                add_list.add(node2)
-                                                                add_list.add(n1p)
-                                                                cycle_list.add(frozenset(add_list))
-                                                                add_list.clear()
+                                                        l1m.update(cycle_node_data[n1p][1])
+                                                        for n2p in n2pl:
+                                                            if n2p==None:
                                                                 breaker=True
-                                                            elif self.__node_conns[n1p][n2p]:
-                                                                add_list.add(node1)
-                                                                add_list.add(node2)
+                                                                continue
+                                                            l2m.update(cycle_node_data[n2p][1])
+                                                            try:
+                                                                if n1p == n2p:
+                                                                    add_list.add(node1)
+                                                                    add_list.add(node2)
+                                                                    add_list.add(n1p)
+                                                                    cycle_list.add(frozenset(add_list))
+                                                                    add_list.clear()
+                                                                    breaker=True
+                                                                elif self.__node_conns[n1p][n2p]:
+                                                                    add_list.add(node1)
+                                                                    add_list.add(node2)
+                                                                    add_list.add(n1p)
+                                                                    add_list.add(n2p)
+                                                                    cycle_list.add(frozenset(add_list))
+                                                                    add_list.clear()
+                                                                    breaker=True
+                                                            except Exception as _:
+                                                                #print(e)
+                                                                #parents not connected
                                                                 add_list.add(n1p)
                                                                 add_list.add(n2p)
-                                                                cycle_list.add(frozenset(add_list))
-                                                                add_list.clear()
-                                                                breaker=True
-                                                        except Exception as _:
-                                                            #print(e)
-                                                            #parents not connected
-                                                            add_list.add(n1p)
-                                                            add_list.add(n2p)
-                                                n1pl=l1m
-                                                n2pl=l2m
+                                                    n1pl=l1m
+                                                    n2pl=l2m
 
 
 
 
-                                        add_list = set()
-                                        #which parents actually communicate with node1
-                                        for linked_parent in cycle_node_data[node1][1]:
-                                            print("Linked",node1,"to",linked_parent)
-                                            try:
-                                                if self.__node_conns[node1][linked_parent]:
-                                                    #direct connection
+                                            add_list = set()
+                                            #which parents actually communicate with node1
+                                            for linked_parent in cycle_node_data[node1][1]:
+                                                print("Linked",node1,"to",linked_parent)
+                                                try:
+                                                    if self.__node_conns[node1][linked_parent]:
+                                                        #direct connection
+                                                        add_list.add(linked_parent)
+                                                        add_list.add(node1)
+                                                        add_list.add(node2)
+                                                        print("cycle",add_list)
+                                                        cycle_list.add(frozenset(add_list))
+                                                        add_list.clear()
+                                                except Exception as _:
+                                                    print("extension",linked_parent)
                                                     add_list.add(linked_parent)
-                                                    add_list.add(node1)
-                                                    add_list.add(node2)
-                                                    print("cycle",add_list)
-                                                    cycle_list.add(frozenset(add_list))
-                                                    add_list.clear()
-                                            except Exception as _:
-                                                print("extension",linked_parent)
-                                                add_list.add(linked_parent)
-                                                #extension ( possibly not connected to other on same level)
-                                           
+                                                    #extension ( possibly not connected to other on same level)
+                                            
 
-                                    
-                            except Exception as _:
-                                pass
+                                        
+                                except Exception as _:
+                                    pass
+                            
+                        level_b-=1"""
                         
-                    level_b-=1"""
-                    
-        print("cycles:",self.__cycle_list)
+            ret = self.__cycle_list.copy()
 
-    def conexo(self):
-        subg = self.sub_grafos()
-        legc = len(subg)
+            del self.__cycle_list
+            del self.__cycle_node_data
+            del self.__parentnode_data
+            del self.__level_node_data
+
+            self.__clear_visited_nodes()
+            self.__clear_visited_edges()
+
+            return ret
+
+    def conexo(self,sub_grafos):
+        legc = len(sub_grafos)
         if legc == 1:
             # print("Grafo conexo, com",legc,"subconjunto")
             return True, legc
@@ -1217,8 +1309,137 @@ class Graph:
                     M[i][v]=min(M[i-1][v],minw)
         return M[self.__node_count - 1][s]
 
-                
+
+    def __bfs_tree_rec(self,s,dest_,set_):
+        set_.add(dest_)
+        return_list = {'fold': 0}
+        f=False
+        for _,des in self.__connections[dest_].items():
+            if des not in set_:
+                f=True
+                return_list[des] = self.__bfs_tree_rec(s,des,set_.copy())
+        if not f:
+            return_list = self.__node_conns[s][dest_].weight
+        return return_list
+
+    def __bfs_tree_fold(self,s,rt,function):
+        if type(rt[s]) == dict:
+            lib = []
+            for path in rt[s].keys():
+                if type(path) == Node:
+                    lib.append(
+                        self.__node_conns[s][path].weight+
+                        self.__bfs_tree_fold(path,rt[s],function)
+                    )
+            rt[s]['fold'] = function(lib)
+            return rt[s]['fold']
+        else:
+            return rt[s]
+
+
+    def bfs_tree(self,s):
+        c = set()
+        c.add(s)
+        return_list = {}
+        return_list[s] = {'fold': 0}
+        for _,des in self.__connections[s].items():
+            if des not in c:
+                return_list[s][des] = self.__bfs_tree_rec(s,des,c.copy())
         
+        print(self.__bfs_tree_fold(s,return_list,min))
+        return return_list
+
+
+    def travelling_salesman(self,start):
+        pass
+
+    def subsets_of_size(self,size,s):
+        vertices=[self.get_index_from_node(x) for x in self.__nodes ]
+        subsets=[]
+        for x in list(combinations(vertices,size)):
+            if self.get_index_from_node(s) in x:
+                subsets.append(sorted(list(x)))
+        return subsets
+        
+            
+            
+    def travelling_salesman2(self, s):
+        C = {}
+        C[(str([s]),s)]=0
+        for n in range(2,self.__node_count+1):
+            subsets=self.subsets_of_size(n,s)
+            for S in subsets:
+                C[(str(S),s)]=sys.maxsize
+                for j in S:
+                    if j!=s:
+                        S_linha=S.copy()
+                        S_linha.remove(j)
+                        menor = sys.maxsize
+                        for i in S:
+                            if i!=j:
+                                if(C[(str(S_linha),i)]+self.__connections[i][j].weight<menor):
+                                    menor=C[(str(S_linha),i)]+self.__connections[i][j].weight
+                        C[(str(S),j)]=menor
+                        print((str(S),j),menor)
+                print("C:",C)
+                menor = sys.maxsize
+                for j in S:
+                    if j!=s:
+                        if(C[(str(S),j)]+self.__connections[j][s].weight<menor):
+                            menor=C[(str(S),j)]+self.__connections[j][s].weight
+                            menor_escolhido=(str(S),j)
+                            final=j
+                print("Destino:",s)            
+                print("Custo:",menor,"Anterior:",final)
+                while len(S)>1:
+                    menor = sys.maxsize
+                    S.remove(final)
+                    for i in S:
+                        if i!=final:
+                            if(C[(str(S),i)]+self.__connections[i][final].weight<menor):
+                                menor=C[(str(S),i)]+self.__connections[i][final].weight
+                                menor_escolhido=(str(S),i)
+                                f=i
+                    print("Custo:",menor,"Anterior:",f,"menor escolhido:",menor_escolhido)
+                    final=f
+    def kruskal(self):
+        self.__clear_visited_edges()
+        peso_aresta = dict()
+        for edge in self.__edges.keys():
+            if peso_aresta.get(edge.weight,None) == None:
+                peso_aresta[edge.weight] = []
+            peso_aresta[edge.weight].append(edge)
+        peso_order = list(peso_aresta.keys())
+        peso_order.sort()
+        lista_edges = []
+        for peso in peso_order:
+            lista_edges+=peso_aresta[peso]
+        
+        """print(peso_aresta)
+        print(peso_order)
+        print(lista_edges)"""
+        
+        agm = Graph()
+        for node in self.__nodes:
+            agm.add_node_object(node)
+        curr_n = 0
+        repeat=True
+        while repeat:
+            curr = lista_edges[curr_n]
+            from_,to_ = self.get_nodes_from_edge(curr)
+            e = agm.add_edge(from_,to_,curr.weight,curr.name,curr.getCap(),curr.getFlux())
+            if(len(agm.ciclos()) != 0):
+                agm.remove_edge(e)
+            if (agm.conexo(agm.sub_grafos())[0]) and (agm.__node_count == self.__node_count) and (curr_n == len(lista_edges) - 1):
+                repeat=False
+            curr_n = curr_n+1
+        return agm
+        """do{
+            if (próxima aresta na ordem não cria um ciclo)
+            inclui a aresta em T;
+        }while(T não é conexo e não contém todos os vértices de G)"""
+
+
         
 
 def complemento(grafo):
@@ -1302,3 +1523,7 @@ def isomorfo(grafo1,grafo2):
         return False
     return True
     
+
+
+
+
